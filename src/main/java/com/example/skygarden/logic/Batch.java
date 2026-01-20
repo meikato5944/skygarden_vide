@@ -13,15 +13,39 @@ import lombok.extern.slf4j.Slf4j;
 
 /**
  * バッチ処理のビジネスロジッククラス
- * スケジュール公開・非公開のバッチ処理を提供する
+ * 
+ * このサービスクラスはスケジュール公開・非公開のバッチ処理を実行するビジネスロジックを提供します。
+ * 定期的に実行されることで、指定された日時にコンテンツを自動的に公開・非公開にします。
+ * 
+ * 主な機能:
+ * - スケジュール公開処理（publishedBatch）
+ * - スケジュール非公開処理（unPublishedBatch）
+ * 
+ * スケジュール公開処理フロー:
+ * 1. schedule_published が現在時刻以前のコンテンツを検索
+ * 2. 該当コンテンツを content_public テーブルに登録（既存の場合は更新）
+ * 3. contentテーブルの schedule_published をクリア
+ * 
+ * スケジュール非公開処理フロー:
+ * 1. schedule_unpublished が現在時刻以前のコンテンツを検索
+ * 2. 該当コンテンツを content_public テーブルから削除
+ * 3. contentテーブルの schedule_unpublished をクリア
+ * 
+ * 実行方法:
+ * BatchController の /webadmin/batch エンドポイントを呼び出すことで実行されます。
+ * 本番環境では、cronジョブやタスクスケジューラから定期的に呼び出すことを推奨します。
+ * 例: "0 * * * * curl http://localhost:8080/webadmin/batch" (毎分実行)
+ * 
+ * @see ContentMapper データベース操作
+ * @see BatchController バッチ処理APIコントローラー
  */
 @Slf4j
 @Service
 public class Batch {
+	
+	/** コンテンツ管理用のMyBatis Mapper */
 	@Autowired
 	private ContentMapper mapper;
-	@Autowired
-	private Content content;
 
 	/**
 	 * スケジュール公開のバッチ処理を実行する

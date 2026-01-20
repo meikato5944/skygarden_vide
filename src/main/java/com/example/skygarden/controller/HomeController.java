@@ -19,15 +19,36 @@ import com.example.skygarden.util.ScreenNameConverter;
 import jakarta.servlet.http.HttpSession;
 
 /**
- * フロントエンドのルーティングを処理するコントローラー
- * Thymeleafテンプレートを返す
+ * フロントエンド画面のルーティングを処理するコントローラー
+ * 
+ * このコントローラーはThymeleafテンプレートを使用したサーバーサイドレンダリングを提供します。
+ * 各エンドポイントはHTMLページを返し、モデルにデータをバインドしてビューに渡します。
+ * 
+ * 主な画面:
+ * - ログイン画面（/login）
+ * - コンテンツ一覧画面（/）
+ * - コンテンツ編集画面（/content）
+ * - ユーザー一覧画面（/user-list）
+ * - ユーザー編集画面（/user）
+ * - 設定画面（/setting）
+ * - URLディレクトリ画面（/url-directory）
+ * 
+ * @see Content コンテンツ管理のビジネスロジック
+ * @see Setting 設定管理のビジネスロジック
+ * @see com.example.skygarden.logic.User ユーザー管理のビジネスロジック
  */
 @Controller
 public class HomeController {
+    
+    /** コンテンツ管理のビジネスロジック */
     @Autowired
     private Content content;
+    
+    /** 設定管理のビジネスロジック */
     @Autowired
     private Setting setting;
+    
+    /** ユーザー管理のビジネスロジック */
     @Autowired
     private com.example.skygarden.logic.User user;
     

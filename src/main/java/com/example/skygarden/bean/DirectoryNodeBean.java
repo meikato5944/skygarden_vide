@@ -4,15 +4,52 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * URLディレクトリのツリーノードを表すBean
+ * URLディレクトリのツリーノードを表すBeanクラス
+ * 
+ * このクラスはURLディレクトリ画面でコンテンツをツリー構造で表示するための
+ * ノード情報を保持します。ファイルシステムのような階層構造を表現します。
+ * 
+ * 主な用途:
+ * - URLディレクトリ画面のツリー表示
+ * - Content.getUrlDirectoryTree() の戻り値要素
+ * 
+ * ツリー構造の例:
+ * ROOT (ディレクトリ)
+ * ├── about (ディレクトリ)
+ * │   ├── company.html (ファイル/コンテンツ)
+ * │   └── history.html (ファイル/コンテンツ)
+ * └── index.html (ファイル/コンテンツ)
+ * 
+ * フィールド説明:
+ * - name: 表示名（ファイル名またはディレクトリ名）
+ * - path: URLパス
+ * - id: コンテンツID（ファイルノードの場合のみ設定）
+ * - title: コンテンツタイトル（ファイルノードの場合のみ設定）
+ * - isDirectory: ディレクトリノードの場合true
+ * - children: 子ノードのリスト（ディレクトリノードの場合のみ使用）
+ * 
+ * @see Content#getUrlDirectoryTree(String) ツリー生成処理
+ * @see HomeController#urlDirectory(org.springframework.ui.Model) URLディレクトリ画面
  */
 public class DirectoryNodeBean {
-    private String name;           // 表示名（ファイル名またはディレクトリ名）
-    private String path;           // フルパス
-    private String id;             // コンテンツID（ファイルの場合のみ）
-    private String title;          // コンテンツタイトル（ファイルの場合のみ）
-    private boolean isDirectory;   // ディレクトリかどうか
-    private List<DirectoryNodeBean> children; // 子ノード（ディレクトリの場合）
+    
+    /** 表示名（ファイル名またはディレクトリ名） */
+    private String name;
+    
+    /** URLパス */
+    private String path;
+    
+    /** コンテンツID（ファイルノードの場合のみ） */
+    private String id;
+    
+    /** コンテンツタイトル（ファイルノードの場合のみ） */
+    private String title;
+    
+    /** ディレクトリノードの場合true */
+    private boolean isDirectory;
+    
+    /** 子ノードのリスト（ディレクトリノードの場合） */
+    private List<DirectoryNodeBean> children;
 
     public DirectoryNodeBean() {
         this.children = new ArrayList<>();

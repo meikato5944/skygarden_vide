@@ -9,7 +9,19 @@ import com.example.skygarden.constants.Constants;
 
 /**
  * CORS（Cross-Origin Resource Sharing）設定クラス
- * フロントエンドからのリクエストを許可するための設定を提供する
+ * 
+ * このクラスはクロスオリジンリクエストの許可設定を行います。
+ * 以前のSPA（Single Page Application）構成の名残で、
+ * /webadmin/** パスへのCORSを設定しています。
+ * 
+ * 現在の構成（Thymeleaf SSR）では同一オリジンのため、
+ * この設定は実質的に不要ですが、API単独使用時の互換性のために残されています。
+ * 
+ * 許可設定:
+ * - 対象パス: /webadmin/**
+ * - 許可オリジン: http://localhost:8080
+ * - 許可メソッド: GET, POST, PUT, DELETE
+ * - クレデンシャル: 許可（セッションクッキーの送信を許可）
  */
 @Configuration
 public class CorsConfig {

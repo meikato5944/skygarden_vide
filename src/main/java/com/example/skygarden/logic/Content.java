@@ -22,12 +22,40 @@ import jakarta.servlet.http.HttpSession;
 
 /**
  * コンテンツ管理のビジネスロジッククラス
- * コンテンツの作成、更新、削除、検索、表示などの処理を提供する
+ * 
+ * このサービスクラスはCMSのコア機能であるコンテンツ管理のビジネスロジックを提供します。
+ * コンテンツの作成、更新、削除、検索、表示、テンプレート適用などの処理を行います。
+ * 
+ * 主な機能:
+ * - コンテンツのCRUD操作（作成・読取・更新・削除）
+ * - テンプレートと構成要素の組み合わせによるコンテンツ生成
+ * - スケジュール公開・非公開の管理
+ * - ページネーション
+ * - URL重複チェック
+ * - URLディレクトリツリーの生成
+ * - [movie id=XXX] タグのYouTube埋め込みコード変換
+ * 
+ * テンプレートシステム:
+ * テンプレートのcontentフィールドには構成要素の配置が保存されます。
+ * 形式: "###element(ID),###content###,###element(ID)"
+ * - ###element(ID): 構成要素のID
+ * - ###content###: コンテンツ本文の挿入位置
+ * 
+ * 公開テーブル（content_public）:
+ * 公開フラグが"1"のコンテンツは、contentテーブルとcontent_publicテーブルの
+ * 両方に保存されます。公開ページの配信時はcontent_publicテーブルを参照します。
+ * 
+ * @see ContentMapper データベース操作
+ * @see AppProperties アプリケーション設定
  */
 @Service
 public class Content {
+	
+	/** コンテンツ管理用のMyBatis Mapper */
 	@Autowired
 	private ContentMapper mapper;
+	
+	/** アプリケーション設定プロパティ */
 	@Autowired
 	private AppProperties appProperties;
 

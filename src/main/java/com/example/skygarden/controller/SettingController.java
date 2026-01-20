@@ -22,11 +22,26 @@ import jakarta.servlet.http.HttpSession;
 
 /**
  * 設定管理に関するREST APIコントローラー
- * アプリケーション設定（構成要素の色設定など）の更新・取得を提供する
+ * 
+ * このコントローラーはCMSシステムの設定管理機能を提供するAPIエンドポイントを定義します。
+ * アプリケーション設定の更新・取得を行います。
+ * 
+ * 主な機能:
+ * - 構成要素の色設定の更新
+ * - 構成要素の色設定の取得
+ * - セッション属性の取得
+ * 
+ * 設定データの形式:
+ * 色設定は「name=code*name=code*」形式の文字列として保存されます。
+ * 例: "header=#000000*footer=#333333*"
+ * 
+ * @see Setting 設定管理のビジネスロジック
  */
 @RestController
 @RequestMapping(Constants.PATH_WEBADMIN)
 public class SettingController {
+	
+	/** 設定管理のビジネスロジック */
 	@Autowired
 	private Setting setting;
 

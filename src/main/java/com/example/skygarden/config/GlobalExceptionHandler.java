@@ -14,12 +14,31 @@ import lombok.extern.slf4j.Slf4j;
 
 /**
  * グローバル例外ハンドラー
- * アプリケーション全体で発生する例外を処理する
+ * 
+ * このクラスはアプリケーション全体で発生する例外を一元的に処理します。
+ * Spring の @ControllerAdvice アノテーションにより、
+ * 全てのコントローラーで発生した例外をキャッチして処理できます。
+ * 
+ * 現在処理している例外:
+ * - MaxUploadSizeExceededException: ファイルアップロードサイズ超過
+ * 
+ * ファイルサイズ超過時の動作:
+ * 1. エラーログを出力
+ * 2. セッションにエラーメッセージを設定
+ * 3. リファラーに基づいて適切なリスト画面へリダイレクト
+ * 
+ * 設定値:
+ * - maxFileSize: spring.servlet.multipart.max-file-size から取得（デフォルト: 10MB）
+ * 
+ * 拡張方法:
+ * 他の例外も処理したい場合は、@ExceptionHandler アノテーションを付けた
+ * メソッドを追加してください。
  */
 @ControllerAdvice
 @Slf4j
 public class GlobalExceptionHandler {
 	
+	/** 最大ファイルサイズ（エラーメッセージ表示用） */
 	@Value("${spring.servlet.multipart.max-file-size:10MB}")
 	private String maxFileSize;
 	

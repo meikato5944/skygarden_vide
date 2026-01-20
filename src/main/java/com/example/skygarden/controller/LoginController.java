@@ -19,11 +19,26 @@ import jakarta.servlet.http.HttpSession;
 
 /**
  * ログイン・認証に関するREST APIコントローラー
- * ユーザーのログイン、ログアウト、認証状態の確認を提供する
+ * 
+ * このコントローラーはユーザー認証に関連するAPIエンドポイントを提供します。
+ * セッションベースの認証を使用し、ログイン状態をサーバー側で管理します。
+ * 
+ * 主な機能:
+ * - ユーザー認証（ログイン）
+ * - セッション無効化（ログアウト）
+ * - 認証状態の確認
+ * 
+ * セキュリティ:
+ * - パスワードは現状平文で比較されています（本番環境ではハッシュ化を推奨）
+ * - セッションタイムアウトはapplication.propertiesで設定可能
+ * 
+ * @see Login ログイン処理のビジネスロジック
  */
 @RestController
 @RequestMapping(Constants.PATH_WEBADMIN)
 public class LoginController {
+	
+	/** ログイン処理のビジネスロジック */
 	@Autowired
 	private Login login;
 

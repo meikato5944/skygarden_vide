@@ -4,10 +4,35 @@ import com.example.skygarden.constants.Constants;
 
 /**
  * 画面名変換ユーティリティクラス
- * モード文字列を画面名に変換する共通処理を提供する
+ * 
+ * このクラスはモード文字列（コンテンツタイプ）と画面名・URL間の変換処理を提供します。
+ * リクエストパラメータのモードに応じて、適切な画面名やリダイレクトURLを取得するために使用されます。
+ * 
+ * 主な機能:
+ * - モード文字列を画面名に変換（convertModeToScreenName）
+ * - モードに応じたページURLを生成（getPageUrlByMode）
+ * - タイプに応じたリダイレクトURLを生成（getRedirectUrlByType）
+ * 
+ * モード/タイプと画面名の対応:
+ * - ""（空文字列）: コンテンツ
+ * - "template": テンプレート
+ * - "element": 構成要素
+ * - "stylesheet": CSS
+ * - "script": JS
+ * - "image": 画像
+ * - "file": ファイル
+ * - "movie": 動画
+ * 
+ * このクラスはstaticメソッドのみを持ち、インスタンス化できません。
+ * 
+ * @see Constants コンテンツタイプと画面名の定数定義
  */
 public final class ScreenNameConverter {
 	
+	/**
+	 * プライベートコンストラクタ
+	 * ユーティリティクラスのインスタンス化を防止する
+	 */
 	private ScreenNameConverter() {
 		// インスタンス化を防ぐ
 	}

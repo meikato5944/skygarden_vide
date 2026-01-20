@@ -21,14 +21,41 @@ import lombok.extern.slf4j.Slf4j;
 
 /**
  * プレビュー機能に関するREST APIコントローラー
- * コンテンツのプレビュー表示を提供する
+ * 
+ * このコントローラーはコンテンツのプレビュー表示機能を提供するAPIエンドポイントを定義します。
+ * コンテンツ編集画面から呼び出され、保存前の内容をプレビュー表示します。
+ * 
+ * 主な機能:
+ * - コンテンツのプレビューHTML生成
+ * - テンプレートの適用
+ * - 構成要素の展開
+ * - 動画タグの変換
+ * 
+ * プレビュー処理フロー:
+ * 1. テンプレートが指定されている場合、テンプレートのヘッダー情報を取得
+ * 2. コンテンツ本文にテンプレートと構成要素を適用
+ * 3. [movie id=XXX] タグをYouTube埋め込みコードに変換
+ * 4. preview.html テンプレートに ###title###, ###head###, ###content### を挿入
+ * 5. 完成したHTMLをレスポンスとして返却
+ * 
+ * プレースホルダー:
+ * - ###title###: タイトル
+ * - ###head###: ヘッダー部分（CSS、JSなど）
+ * - ###content###: コンテンツ本文
+ * 
+ * @see Content コンテンツ管理のビジネスロジック
+ * @see AppProperties アプリケーション設定
  */
 @RestController
 @RequestMapping(Constants.PATH_WEBADMIN)
 @Slf4j
 public class PreviewController {
+	
+	/** コンテンツ管理のビジネスロジック */
 	@Autowired
 	private Content content;
+	
+	/** アプリケーション設定プロパティ */
 	@Autowired
 	private AppProperties appProperties;
 

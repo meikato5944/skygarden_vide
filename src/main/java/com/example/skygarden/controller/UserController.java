@@ -23,11 +23,27 @@ import jakarta.servlet.http.HttpSession;
 
 /**
  * ユーザー管理に関するREST APIコントローラー
- * ユーザーの作成、更新、取得、一覧取得などの処理を提供する
+ * 
+ * このコントローラーはCMSシステムのユーザー管理機能を提供するAPIエンドポイントを定義します。
+ * ユーザーの作成、更新、取得、一覧取得などの処理を行います。
+ * 
+ * 主な機能:
+ * - ユーザーの新規作成
+ * - ユーザー情報の更新
+ * - ユーザー情報の取得
+ * - ユーザー一覧の取得（ページネーション・ソート対応）
+ * 
+ * ユーザー権限:
+ * - 管理者（admin="1"）: 全機能へのアクセス権限
+ * - 一般ユーザー（admin="0"）: 制限された機能へのアクセス
+ * 
+ * @see User ユーザー管理のビジネスロジック
  */
 @RestController
 @RequestMapping(Constants.PATH_WEBADMIN)
 public class UserController {
+	
+	/** ユーザー管理のビジネスロジック */
 	@Autowired
 	private User user;
 

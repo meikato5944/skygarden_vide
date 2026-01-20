@@ -13,21 +13,41 @@ import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * データベースアクセスを管理するクラス
- * MySQLデータベースへの接続、CRUD操作を提供する
+ * データベースアクセスを管理するクラス（レガシー）
+ * 
+ * このクラスはJDBCを使用してMySQLデータベースへの直接接続・操作を提供するレガシークラスです。
+ * 現在はMyBatis（ContentMapper）への移行が完了しており、このクラスは使用されていません。
+ * 
+ * 注意: 
+ * 新規開発では ContentMapper インターフェースを使用してください。
+ * このクラスは互換性のために残されていますが、将来的に削除される可能性があります。
+ * 
+ * 旧機能（参考用）:
+ * - データベース接続の取得（getConnection）
+ * - ユーザー情報の取得・作成・更新
+ * - コンテンツの作成・更新・検索・削除
+ * - 設定情報の取得・更新
+ * - ページネーション対応の一覧取得
+ * 
+ * @deprecated ContentMapper を使用してください
+ * @see ContentMapper MyBatisによるデータベース操作
  */
 @Slf4j
 public class DB {
-	/** DBのURL */
+	
+	/** データベースURL */
 	private static final String URL = "jdbc:mysql://127.0.0.1:3306/skygarden?enabledTLSProtocols=TLSv1.2";
-	/** DBのユーザー名 */
+	
+	/** データベースユーザー名（ローカル開発環境用） */
 	private static final String USER = "root";//local:root
 //	private static final String USER = "heidi_sql";//server
-	/** DBのパスワード */
+	
+	/** データベースパスワード（ローカル開発環境用） */
 	private static final String PASS = "";//local-xampp:""
 //	private static final String PASS = "root";//local-mysql:""
 //	private static final String PASS = "admin";//server:admin
-	/** ドライバの接続をする文 */
+	
+	/** JDBCドライバクラス名 */
 	private static final String DRIVER = "com.mysql.cj.jdbc.Driver";
 
 	private static final String SELECT_SQL = "SELECT id, name, password, email, admin FROM user WHERE name = ?";

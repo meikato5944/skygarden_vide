@@ -17,11 +17,29 @@ import jakarta.servlet.http.HttpServletResponse;
 
 /**
  * バッチ処理に関するREST APIコントローラー
- * スケジュール公開・非公開のバッチ処理を提供する
+ * 
+ * このコントローラーはスケジュール公開・非公開のバッチ処理を実行するAPIエンドポイントを定義します。
+ * 定期的に実行することで、スケジュールされたコンテンツの公開・非公開を自動化します。
+ * 
+ * 主な機能:
+ * - スケジュール公開処理: schedule_published日時が現在以前のコンテンツを公開テーブルに登録
+ * - スケジュール非公開処理: schedule_unpublished日時が現在以前のコンテンツを公開テーブルから削除
+ * 
+ * 使用方法:
+ * - cronジョブやタスクスケジューラから定期的にこのAPIを呼び出す
+ * - 例: curl http://localhost:8080/webadmin/batch
+ * 
+ * 処理フロー:
+ * 1. publishedBatch(): 公開予定日時が過ぎたコンテンツを公開
+ * 2. unPublishedBatch(): 非公開予定日時が過ぎたコンテンツを非公開
+ * 
+ * @see Batch バッチ処理のビジネスロジック
  */
 @RestController
 @RequestMapping(Constants.PATH_WEBADMIN)
 public class BatchController {
+	
+	/** バッチ処理のビジネスロジック */
 	@Autowired
 	private Batch batch;
 

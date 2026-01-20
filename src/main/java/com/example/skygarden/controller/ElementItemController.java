@@ -14,11 +14,30 @@ import com.example.skygarden.logic.Content;
 
 /**
  * 構成要素アイテムに関するREST APIコントローラー
- * テンプレート編集時に使用する構成要素の一覧を提供する
+ * 
+ * このコントローラーはテンプレート編集時に使用する構成要素の一覧を提供するAPIエンドポイントを定義します。
+ * テンプレート編集画面で、ドラッグ＆ドロップ可能な構成要素のリストを取得するために使用されます。
+ * 
+ * 主な機能:
+ * - 構成要素一覧の取得
+ * 
+ * 構成要素について:
+ * 構成要素（element）は、テンプレートに組み込む再利用可能なHTMLパーツです。
+ * 例: ヘッダー、フッター、サイドバー、ナビゲーションなど
+ * 
+ * テンプレートでの使用:
+ * テンプレートの content フィールドには、構成要素とコンテンツの配置順序が
+ * カンマ区切りで保存されます。
+ * 例: "###element(1),###content###,###element(2)"
+ * 
+ * @see Content コンテンツ管理のビジネスロジック
+ * @see ElementItemBean 構成要素アイテム情報Bean
  */
 @RestController
 @RequestMapping(Constants.PATH_WEBADMIN)
 public class ElementItemController {
+	
+	/** コンテンツ管理のビジネスロジック */
 	@Autowired
 	private Content content;
 

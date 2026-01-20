@@ -592,7 +592,7 @@ textarea.form-control:focus {
 }
 
 .modal-footer {
-  border-top: 2px solid var(--sky-yellow-4);
+  border-top: none;
   padding: 1.25rem 1.5rem;
 }
 

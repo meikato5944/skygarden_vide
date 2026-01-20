@@ -15,9 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.example.skygarden.bean.ContentBean;
 import com.example.skygarden.bean.ListBean;
-import com.example.skygarden.config.AppProperties;
 import com.example.skygarden.constants.Constants;
-import com.example.skygarden.logic.CommonProc;
 import com.example.skygarden.logic.Content;
 import com.example.skygarden.logic.Setting;
 import com.example.skygarden.util.ScreenNameConverter;
@@ -28,13 +26,30 @@ import jakarta.servlet.http.HttpSession;
 
 /**
  * コンテンツ管理に関するREST APIコントローラー
- * コンテンツの作成、更新、削除、取得などの処理を提供する
+ * 
+ * このコントローラーはコンテンツ（Webページ、テンプレート、構成要素、CSS、JS、画像、ファイル、動画）の
+ * CRUD操作を提供するREST APIエンドポイントを定義します。
+ * 
+ * 主な機能:
+ * - コンテンツの作成・更新・削除
+ * - コンテンツ情報の取得
+ * - コンテンツ一覧の取得（ページネーション対応）
+ * - テンプレート・構成要素の選択オプション取得
+ * - URL重複チェック
+ * - プレビュー変換
+ * 
+ * @see Content コンテンツ管理のビジネスロジック
+ * @see Setting 設定管理のビジネスロジック
  */
 @RestController
 @RequestMapping(Constants.PATH_WEBADMIN)
 public class ContentController {
+	
+	/** コンテンツ管理のビジネスロジック */
 	@Autowired
 	private Content content;
+	
+	/** 設定管理のビジネスロジック */
 	@Autowired
 	private Setting setting;
 

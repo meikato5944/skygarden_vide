@@ -21,13 +21,40 @@ import lombok.extern.slf4j.Slf4j;
 
 /**
  * 動画管理に関するREST APIコントローラー
- * YouTube動画URLの登録、更新、削除などの処理を提供する
+ * 
+ * このコントローラーはYouTube動画の登録・更新機能を提供するAPIエンドポイントを定義します。
+ * YouTube URLからビデオIDを抽出し、データベースに登録します。
+ * 
+ * 主な機能:
+ * - YouTube動画URLの登録
+ * - 動画情報の更新
+ * - 動画サイズ（幅・高さ）の指定
+ * - スケジュール公開・非公開設定
+ * 
+ * 対応するYouTube URL形式:
+ * - https://www.youtube.com/watch?v=VIDEO_ID
+ * - https://youtu.be/VIDEO_ID
+ * - https://www.youtube.com/embed/VIDEO_ID
+ * 
+ * データベース格納:
+ * - url: YouTube URL（フルURL）
+ * - title: 動画タイトル
+ * - head: サイズ情報（JSON形式）
+ * - content: YouTubeビデオID
+ * 
+ * コンテンツでの使用方法:
+ * コンテンツ内で [movie id=XXX] タグを使用すると、
+ * Content.convertMovieTags() メソッドによりYouTube埋め込みコードに変換されます。
+ * 
+ * @see ContentMapper データベース操作
+ * @see Content#convertMovieTags(String) 動画タグ変換処理
  */
 @RestController
 @RequestMapping(Constants.PATH_WEBADMIN)
 @Slf4j
 public class MovieController {
 	
+	/** コンテンツ管理用のMyBatis Mapper */
 	@Autowired
 	private ContentMapper mapper;
 	

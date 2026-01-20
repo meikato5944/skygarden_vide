@@ -26,18 +26,53 @@ import lombok.extern.slf4j.Slf4j;
 
 /**
  * リクエストルーティングフィルター
- * 未マッピングのリクエストをコンテンツページとして処理する
- * 公開テーブルからURLに一致するコンテンツを検索し、HTMLを生成して返す
+ * 
+ * このフィルターは全てのHTTPリクエストをインターセプトし、
+ * コントローラーにマッピングされていないURLを公開コンテンツとして処理します。
+ * これにより、CMS上で作成したコンテンツを任意のURLで公開できます。
+ * 
+ * 処理フロー:
+ * 1. /webadmin/** パスは常にコントローラーへ転送（早期リターン）
+ * 2. Spring MVCのハンドラーマッピングをチェック
+ *    - マッピングが存在する場合: フィルターチェーンを継続
+ * 3. content_public テーブルでURLを検索
+ *    - コンテンツが見つかった場合: タイプに応じてレスポンスを生成
+ *    - 見つからない場合: 404エラー処理へ
+ * 
+ * コンテンツタイプ別の処理:
+ * - 通常コンテンツ（空文字列）: HTMLページとして返却
+ *   - テンプレートヘッダー + コンテンツヘッダー + コンテンツ本文
+ *   - original.html をテンプレートとして使用
+ * - CSS（stylesheet）: text/css として返却
+ * - JavaScript（script）: application/javascript として返却
+ * - 画像（image）: バイナリファイルとして返却（適切なMIMEタイプ）
+ * - ファイル（file）: ダウンロードファイルとして返却
+ * 
+ * プレースホルダー置換:
+ * - ###title###: コンテンツタイトル
+ * - ###head###: ヘッダー部分（CSS、JS参照など）
+ * - ###content###: コンテンツ本文（テンプレート・構成要素適用後）
+ * 
+ * @see Content#displayContent(String) コンテンツ表示処理
+ * @see Content#getTemplateHead(String, String) テンプレートヘッダー取得
  */
 @Component
 @Slf4j
 public class RequestRoutingFilter extends OncePerRequestFilter {
+	
+	/** Spring MVCのリクエストマッピングハンドラー */
 	@Autowired
 	private RequestMappingHandlerMapping handlerMapping;
+	
+	/** コンテンツ管理用のMyBatis Mapper */
 	@Autowired
 	private ContentMapper mapper;
+	
+	/** コンテンツ管理のビジネスロジック */
 	@Autowired
 	private Content content;
+	
+	/** アプリケーション設定プロパティ */
 	@Autowired
 	private AppProperties appProperties;
 

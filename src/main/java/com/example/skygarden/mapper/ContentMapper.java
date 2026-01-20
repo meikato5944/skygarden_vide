@@ -8,6 +8,27 @@ import org.apache.ibatis.annotations.Param;
 
 /**
  * コンテンツ管理用のMyBatis Mapperインターフェース
+ * 
+ * このインターフェースはMyBatisを使用してデータベース操作を行うためのMapper定義です。
+ * SQLは resources/mapper/ContentMapper.xml に定義されています。
+ * 
+ * 操作対象テーブル:
+ * - content: コンテンツ情報（下書き）
+ * - content_public: 公開中のコンテンツ
+ * - user: ユーザー情報
+ * - config: 設定情報
+ * 
+ * 主な機能:
+ * - ユーザー関連: 取得、作成、更新
+ * - コンテンツ関連: 作成、更新、検索、削除、一覧取得
+ * - 公開コンテンツ関連: 作成、更新（content_publicテーブル）
+ * - 設定関連: 取得、更新
+ * - バッチ処理関連: スケジュール公開・非公開対象の取得、クリア
+ * 
+ * パラメータの@Param注釈:
+ * MyBatisのXMLマッピングファイルからパラメータ名でアクセスするために使用します。
+ * 
+ * @see resources/mapper/ContentMapper.xml SQL定義ファイル
  */
 @Mapper
 public interface ContentMapper {

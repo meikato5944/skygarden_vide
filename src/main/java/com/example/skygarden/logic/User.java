@@ -18,12 +18,39 @@ import jakarta.servlet.http.HttpSession;
 
 /**
  * ユーザー管理のビジネスロジッククラス
- * ユーザーの作成、更新、取得、一覧取得などの処理を提供する
+ * 
+ * このサービスクラスはCMSユーザーの管理機能を提供するビジネスロジックを実装します。
+ * ユーザーの作成、更新、取得、一覧取得などの処理を行います。
+ * 
+ * 主な機能:
+ * - ユーザーの新規作成
+ * - ユーザー情報の更新
+ * - ユーザー情報の取得（IDによる検索）
+ * - ユーザー一覧の取得（ページネーション・ソート対応）
+ * - ページネーションHTMLの生成
+ * 
+ * ユーザー属性:
+ * - id: ユーザーID（自動採番）
+ * - name: ユーザー名（ログイン時に使用）
+ * - password: パスワード
+ * - email: メールアドレス
+ * - admin: 管理者フラグ（"1":管理者、"0":一般ユーザー）
+ * 
+ * 権限について:
+ * 現在の実装では管理者フラグは保存されますが、
+ * 権限による機能制限は実装されていません。
+ * 
+ * @see ContentMapper データベース操作
+ * @see AppProperties アプリケーション設定（ページサイズ等）
  */
 @Service
 public class User {
+	
+	/** コンテンツ管理用のMyBatis Mapper（ユーザー操作にも使用） */
 	@Autowired
 	private ContentMapper mapper;
+	
+	/** アプリケーション設定プロパティ */
 	@Autowired
 	private AppProperties appProperties;
 

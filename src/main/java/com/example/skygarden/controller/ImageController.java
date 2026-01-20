@@ -28,16 +28,40 @@ import lombok.extern.slf4j.Slf4j;
 
 /**
  * 画像管理に関するREST APIコントローラー
- * 画像のアップロード、更新、削除などの処理を提供する
+ * 
+ * このコントローラーは画像ファイルのアップロード・更新機能を提供するAPIエンドポイントを定義します。
+ * アップロードされた画像はファイルシステムに保存され、メタデータはデータベースに登録されます。
+ * 
+ * 主な機能:
+ * - 画像ファイルのアップロード
+ * - 画像情報の更新
+ * - 画像サイズ（幅・高さ）の指定
+ * - スケジュール公開・非公開設定
+ * 
+ * ファイル保存:
+ * - 保存先: app.file.upload-dir で指定されたディレクトリ（デフォルト: uploads/images）
+ * - ファイル名: UUID + 元の拡張子
+ * - 対応形式: image/* のMIMEタイプを持つファイル
+ * 
+ * データベース格納:
+ * - url: 公開URL
+ * - title: 画像タイトル
+ * - head: サイズ情報（JSON形式）
+ * - content: 保存されたファイル名
+ * 
+ * @see ContentMapper データベース操作
+ * @see AppProperties アプリケーション設定
  */
 @RestController
 @RequestMapping(Constants.PATH_WEBADMIN)
 @Slf4j
 public class ImageController {
 	
+	/** コンテンツ管理用のMyBatis Mapper */
 	@Autowired
 	private ContentMapper mapper;
 	
+	/** アプリケーション設定プロパティ */
 	@Autowired
 	private AppProperties appProperties;
 	

@@ -28,16 +28,44 @@ import lombok.extern.slf4j.Slf4j;
 
 /**
  * ファイル管理に関するREST APIコントローラー
- * ファイルのアップロード、更新、削除などの処理を提供する
+ * 
+ * このコントローラーは一般ファイル（PDF、ドキュメント等）のアップロード・更新機能を
+ * 提供するAPIエンドポイントを定義します。
+ * アップロードされたファイルはファイルシステムに保存され、メタデータはデータベースに登録されます。
+ * 
+ * 主な機能:
+ * - ファイルのアップロード
+ * - ファイル情報の更新
+ * - スケジュール公開・非公開設定
+ * 
+ * ファイル保存:
+ * - 保存先: app.file.file-upload-dir で指定されたディレクトリ（デフォルト: uploads/files）
+ * - ファイル名: UUID + 元の拡張子
+ * - 対応形式: 全てのファイル形式
+ * 
+ * データベース格納:
+ * - url: 公開URL
+ * - title: ファイルタイトル
+ * - head: 元のファイル名（ダウンロード時のファイル名として使用）
+ * - content: 保存されたファイル名（UUID形式）
+ * 
+ * ダウンロード時の動作:
+ * - Content-Dispositionヘッダーで元のファイル名を使用
+ * - 日本語ファイル名対応（RFC 5987）
+ * 
+ * @see ContentMapper データベース操作
+ * @see AppProperties アプリケーション設定
  */
 @RestController
 @RequestMapping(Constants.PATH_WEBADMIN)
 @Slf4j
 public class FileController {
 	
+	/** コンテンツ管理用のMyBatis Mapper */
 	@Autowired
 	private ContentMapper mapper;
 	
+	/** アプリケーション設定プロパティ */
 	@Autowired
 	private AppProperties appProperties;
 	
