@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/common :: head-with-datepicker('ファイル管理 - Skygarden')}"></head>
+<body>
+    <!-- Sidebar -->
+    <nav th:replace="~{fragments/common :: sidebar}"></nav>
+    
+    <!-- Header (Mobile) -->
+    <nav th:replace="~{fragments/common :: header}"></nav>
+    
+    <!-- Offcanvas Menu (Mobile) -->
+    <div th:replace="~{fragments/common :: offcanvas}"></div>
+    
+    <main>
+        <div class="flex-grow-1 d-flex justify-content-center align-items-center p-4 sky-content">
+            <div class="w-100">
+                <h2 class="text-center mb-3">ファイル入稿画面</h2>
+                <div class="card border-warning rounded sky-bg-1">
+                    <div class="card-body">
+                        <form id="fileform" name="fileform" action="/webadmin/file_upload" method="POST" enctype="multipart/form-data">
+                            <!-- publish&preview -->
+                            <div class="sky-control mb-2">
+                                <div class="sky-control-publish">
+                                    <!-- published -->
+                                    <div class="sky-control-publish-input">
+                                        <label for="schedule_published" class="sky-form-label fw-bold ms-1 mb-1">start</label>
+                                        <input type="datetime-local" class="form-control border-warning sky-input" id="schedule_published" name="schedule_published" th:value="${schedule_published}" placeholder="Enter start" />
+                                        <div class="invalid-feedback">日時形式で入力してください</div>
+                                    </div>
+                                    <!-- unpublished -->
+                                    <div class="sky-control-publish-input">
+                                        <label for="schedule_unpublished" class="sky-form-label fw-bold ms-1 mb-1">end</label>
+                                        <input type="datetime-local" class="form-control border-warning sky-input" id="schedule_unpublished" name="schedule_unpublished" th:value="${schedule_unpublished}" placeholder="Enter end" />
+                                        <div class="invalid-feedback">日時形式で入力してください</div>
+                                    </div>
+                                </div>
+                                <div class="d-flex justify-content-center">
+                                    <!-- publish -->
+                                    <div class="form-check form-switch sky-Content-publish">
+                                        <input class="form-check-input sky-input-switch" type="checkbox" role="switch" id="published" name="published" value="1" th:checked="${publishflg_keep == '1'}" />
+                                        <label class="form-check-label ms-1 pt-1" for="published">publish</label>
+                                    </div>
+                                    <!-- delete -->
+                                    <div th:if="${id != '' and id != null}" class="sky-Content-delete">
+                                        <a class="btn btn-warning sky-Content-delete-item sky-bg-2" data-bs-toggle="modal" data-bs-target="#deleteModal">
+                                            <img th:src="@{/common/image/trash.svg}" alt="delete" />
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- ファイルアップロード -->
+                            <div class="mb-3">
+                                <label for="file" class="sky-form-label fw-bold ms-1">ファイル</label>
+                                <input type="file" class="form-control sky-input" id="file" name="file" th:required="${id == '' or id == null}" />
+                                <div class="ms-2 invalid-feedback">ファイルを選択してください</div>
+                                <small class="form-text text-muted ms-1">対応形式: PDF, Word, Excel, PowerPoint, ZIP等 (最大10MB)</small>
+                            </div>
+                            
+                            <!-- 選択されたファイル名表示 -->
+                            <div class="mb-3" id="selectedFileContainer" style="display:none;">
+                                <label class="sky-form-label fw-bold ms-1">選択されたファイル</label>
+                                <div class="border rounded p-2 bg-light">
+                                    <span id="selectedFileName"></span>
+                                </div>
+                            </div>
+                            
+                            <!-- title -->
+                            <div class="mb-3">
+                                <label for="title" class="sky-form-label fw-bold ms-1">タイトル</label>
+                                <input type="text" class="form-control sky-input" id="title" name="title" th:value="${title}" placeholder="ファイルのタイトルを入力" required />
+                                <div class="ms-2 invalid-feedback">タイトルを入力してください</div>
+                            </div>
+                            
+                            <!-- url (物理パス) -->
+                            <div class="mb-3">
+                                <label for="url" class="sky-form-label fw-bold ms-1">URL（物理パス）</label>
+                                <input type="text" class="form-control sky-input" id="url" name="url" th:value="${url}" placeholder="例: files/document.pdf" required />
+                                <div class="ms-2 invalid-feedback">URLを入力してください</div>
+                                <small class="form-text text-muted ms-1">記事内で &lt;a href="/files/document.pdf"&gt;ダウンロード&lt;/a&gt; のように指定できます</small>
+                            </div>
+                            
+                            <!-- 現在のファイル名（編集時のみ表示） -->
+                            <div class="mb-3" th:if="${contentStr != '' and contentStr != null}">
+                                <label class="sky-form-label fw-bold ms-1">現在のファイル</label>
+                                <input type="text" class="form-control sky-input" th:value="${head}" readonly disabled />
+                                <small class="form-text text-muted ms-1">新しいファイルをアップロードすると上書きされます</small>
+                            </div>
+                            
+                            <!-- 埋め込みタグ表示（編集時のみ） -->
+                            <div class="mb-3" th:if="${id != '' and id != null and url != '' and url != null}">
+                                <label class="sky-form-label fw-bold ms-1">記事内での記述</label>
+                                <div class="input-group">
+                                    <input type="text" class="form-control sky-input" th:value="'&lt;a href=&quot;/' + ${url} + '&quot;&gt;' + ${title} + '&lt;/a&gt;'" readonly id="embedTag" />
+                                    <button class="btn btn-outline-warning" type="button" onclick="copyEmbedTag()">コピー</button>
+                                </div>
+                                <small class="form-text text-muted ms-1">記事内にこのタグを貼り付けるとダウンロードリンクが表示されます</small>
+                            </div>
+                            
+                            <!-- Save button -->
+                            <div class="text-center">
+                                <button type="button" class="btn btn-warning w-100 mb-2 mt-5 sky-submit sky-bg-2" data-bs-toggle="modal" data-bs-target="#submitModal">
+                                    Save
+                                </button>
+                            </div>
+                            
+                            <input type="hidden" name="id" th:value="${id}" />
+                        </form>
+                        
+                        <!-- Delete form -->
+                        <form id="deleteform" name="deleteform" action="/webadmin/delete_post" method="POST">
+                            <input type="hidden" name="id" id="deleteId" th:value="${id}" />
+                            <input type="hidden" name="mode" value="file" />
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Submit Modal -->
+    <div th:replace="~{fragments/common :: submit-modal}"></div>
+
+    <!-- Delete Modal -->
+    <div th:replace="~{fragments/common :: delete-modal}"></div>
+
+    <!-- Footer -->
+    <footer th:replace="~{fragments/common :: footer}"></footer>
+    
+    <script>
+        // 日時形式の変換（datetime-local形式を"yyyy-MM-dd HH:mm"形式に変換）
+        function convertDateTimeFormat(value) {
+            if (value && value.includes('T')) {
+                return value.replace('T', ' ');
+            }
+            return value;
+        }
+        
+        // ファイルフォームを送信
+        function submitFileForm() {
+            var form = document.getElementById('fileform');
+            if (form) {
+                // 日時形式を変換
+                var schedulePublished = document.getElementById('schedule_published');
+                var scheduleUnpublished = document.getElementById('schedule_unpublished');
+                if (schedulePublished && schedulePublished.value) {
+                    schedulePublished.value = convertDateTimeFormat(schedulePublished.value);
+                }
+                if (scheduleUnpublished && scheduleUnpublished.value) {
+                    scheduleUnpublished.value = convertDateTimeFormat(scheduleUnpublished.value);
+                }
+                form.submit();
+            }
+        }
+        
+        // 選択されたファイル名を表示
+        function showSelectedFile(input) {
+            var container = document.getElementById('selectedFileContainer');
+            var fileNameSpan = document.getElementById('selectedFileName');
+            
+            if (input.files && input.files[0]) {
+                fileNameSpan.textContent = input.files[0].name;
+                container.style.display = 'block';
+            } else {
+                container.style.display = 'none';
+            }
+        }
+        
+        // 埋め込みタグをコピー
+        function copyEmbedTag() {
+            var embedTag = document.getElementById('embedTag');
+            if (embedTag) {
+                embedTag.select();
+                document.execCommand('copy');
+                alert('埋め込みタグをコピーしました');
+            }
+        }
+        
+        // 初期化
+        document.addEventListener('DOMContentLoaded', function() {
+            // Submit Modal - 登録ボタン
+            var submitModalBtn = document.getElementById('submitModalBtn');
+            if (submitModalBtn) {
+                submitModalBtn.addEventListener('click', function() {
+                    submitFileForm();
+                });
+            }
+            
+            // Delete Modal - 削除ボタン
+            var deleteModalBtn = document.getElementById('deleteModalBtn');
+            if (deleteModalBtn) {
+                deleteModalBtn.addEventListener('click', function() {
+                    var deleteForm = document.getElementById('deleteform');
+                    if (deleteForm) {
+                        deleteForm.submit();
+                    }
+                });
+            }
+            
+            // ファイル選択時にファイル名を表示
+            var fileInput = document.getElementById('file');
+            if (fileInput) {
+                fileInput.addEventListener('change', function() {
+                    showSelectedFile(this);
+                });
+            }
+        });
+    </script>
+</body>
+</html>
