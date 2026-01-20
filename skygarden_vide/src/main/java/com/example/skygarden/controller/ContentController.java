@@ -15,9 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.example.skygarden.bean.ContentBean;
 import com.example.skygarden.bean.ListBean;
-import com.example.skygarden.config.AppProperties;
 import com.example.skygarden.constants.Constants;
-import com.example.skygarden.logic.CommonProc;
 import com.example.skygarden.logic.Content;
 import com.example.skygarden.logic.Setting;
 import com.example.skygarden.util.ScreenNameConverter;

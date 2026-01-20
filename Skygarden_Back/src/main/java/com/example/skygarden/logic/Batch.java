@@ -61,11 +61,12 @@ public class Batch {
 			String template = result.get("template");
 			String schedule_published = "";//公開後のため空で登録
 			String schedule_unpublished = result.get("schedule_unpublished");
+			String published = "1"; // 公開バッチなので公開状態
 			try {
 				if (publicResult.get("id") == null || publicResult.get("id").equals("")) {
-					db.create_public(id, name, url, title, head, content, type, elementcolor, template, schedule_published, schedule_unpublished);
+					db.create_public(id, name, url, title, head, content, type, elementcolor, template, schedule_published, schedule_unpublished, published);
 				} else {
-					db.update_public(id, name, url, title, head, content, type, elementcolor, template, schedule_published, schedule_unpublished);
+					db.update_public(id, name, url, title, head, content, type, elementcolor, template, schedule_published, schedule_unpublished, published);
 				}
 				try (Connection conn = db.getConnection(); PreparedStatement ps = conn.prepareStatement(UPDATE_SCHEDULE_PUBLISHED)) {
 					ps.setString(1, id);

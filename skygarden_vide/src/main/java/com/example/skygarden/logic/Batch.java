@@ -20,8 +20,6 @@ import lombok.extern.slf4j.Slf4j;
 public class Batch {
 	@Autowired
 	private ContentMapper mapper;
-	@Autowired
-	private Content content;
 
 	/**
 	 * スケジュール公開のバッチ処理を実行する
