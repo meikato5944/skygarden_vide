@@ -1,0 +1,924 @@
+/* ==========================================================================
+   Skygarden CMS - Common Stylesheet
+   ========================================================================== */
+
+/* ==========================================================================
+   1. CSS Variables (Design Tokens)
+   ========================================================================== */
+:root {
+  /* Layout */
+  --sidebar-width: 250px;
+  
+  /* Colors - Primary */
+  --sky-black: #1a1a1a;
+  --sky-white: #ffffff;
+  --sky-yellow-1: #fff888;
+  --sky-yellow-2: #fff100;
+  --sky-yellow-3: #ffffe9;
+  --sky-yellow-4: #eee102;
+  --sky-yellow-5: #ffd700;
+  
+  
+  /* Shadows */
+  --sky-shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.08);
+  --sky-shadow-md: 0 4px 16px rgba(0, 0, 0, 0.12);
+  --sky-shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.16);
+  
+  /* Transitions */
+  --sky-transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  
+  /* Border Radius */
+  --sky-radius-sm: 8px;
+  --sky-radius-md: 12px;
+  --sky-radius-lg: 16px;
+}
+
+/* ==========================================================================
+   2. Base Styles
+   ========================================================================== */
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: var(--sky-yellow-2);
+  color: var(--sky-black);
+  display: flex;
+  flex-direction: column;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Hiragino Kaku Gothic ProN", "Hiragino Sans", Meiryo, sans-serif;
+  min-height: 100vh;
+  line-height: 1.6;
+  margin: 0;
+  padding: 0;
+}
+
+main {
+  flex: 1;
+}
+
+section {
+  min-height: 94vh;
+}
+
+footer {
+  background-color: var(--sky-yellow-4);
+  color: var(--sky-black);
+  margin-top: auto;
+  box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+  padding: 1.5rem 0;
+}
+
+/* Typography */
+h1, h2, h3, h4, h5, h6 {
+  font-weight: 700;
+  color: var(--sky-black);
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+  margin-bottom: 1rem;
+  margin-top: 0;
+}
+h1 { font-size: 2.5rem; }
+h2 { font-size: 2rem; }
+h3 { font-size: 1.75rem; }
+h4 { font-size: 1.5rem; }
+h5 { font-size: 1.25rem; }
+
+/* Links */
+a {
+  text-decoration: none !important;
+  color: var(--sky-black);
+  transition: var(--sky-transition);
+}
+
+a:hover {
+  opacity: 0.8;
+}
+
+/* Selection */
+::selection {
+  background-color: var(--sky-yellow-4);
+  color: var(--sky-black);
+}
+
+/* Focus */
+*:focus-visible {
+  outline: 2px solid var(--sky-yellow-4);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* ==========================================================================
+   3. Utility Classes
+   ========================================================================== */
+/* Background Colors */
+.sky-bg-1 { background-color: var(--sky-yellow-1) !important; }
+.sky-bg-2 { background-color: var(--sky-yellow-2) !important; }
+.sky-bg-4 { background-color: var(--sky-yellow-4) !important; }
+
+/* Text Colors */
+.sky-fc-1 { color: var(--sky-black) !important; }
+
+/* ==========================================================================
+   4. Common Components
+   ========================================================================== */
+
+/* Logo */
+.sky-logo {
+  margin-left: 10px;
+  padding: 0 3px 2px 0;
+  width: 45px;
+}
+
+/* Form Elements */
+.sky-form-label {
+  color: var(--sky-black);
+  font-weight: bold;
+}
+
+.sky-input {
+  background-color: var(--sky-white);
+  border: 2px solid var(--sky-yellow-4);
+  border-radius: var(--sky-radius-sm);
+  transition: var(--sky-transition);
+}
+
+.sky-input:focus {
+  background-color: var(--sky-white);
+  border-color: var(--sky-yellow-4);
+  box-shadow: 0 0 0 0.2rem rgba(238, 225, 2, 0.25);
+  outline: none;
+}
+
+.sky-input-head {
+  min-height: 100px !important;
+}
+
+.sky-input-content {
+  min-height: 500px !important;
+}
+
+.sky-input-switch {
+  height: 20px !important;
+  width: 50px !important;
+}
+
+.sky-input-pulldown select {
+  font-size: var(--bs-body-font-size);
+}
+
+/* Buttons */
+.sky-submit {
+  background-color: var(--sky-yellow-4);
+  border: 2px solid var(--sky-yellow-4);
+  border-radius: var(--sky-radius-md);
+  box-shadow: var(--sky-shadow-md);
+  cursor: pointer;
+  font-weight: 700;
+  padding: 16px 0;
+  transition: var(--sky-transition);
+  width: 100%;
+  color: var(--sky-black);
+}
+
+.sky-submit:hover {
+  background-color: var(--sky-yellow-5);
+  box-shadow: var(--sky-shadow-lg);
+  transform: translateY(-2px) scale(1.02);
+}
+
+.sky-submit:active {
+  transform: translateY(0) scale(0.98);
+  border-bottom-width: 2px;
+}
+
+/* Cards */
+.sky-list-card {
+  background-color: var(--sky-yellow-2);
+  border: 2px solid var(--sky-yellow-4);
+  border-radius: var(--sky-radius-md);
+  box-shadow: var(--sky-shadow-md);
+  cursor: pointer;
+  margin-bottom: 20px;
+  padding: 20px 24px;
+  transition: var(--sky-transition);
+  position: relative;
+  overflow: hidden;
+}
+
+.sky-list-card:hover {
+  box-shadow: var(--sky-shadow-lg);
+  transform: translateY(-4px) scale(1.02);
+  border-color: var(--sky-yellow-5);
+  background-color: var(--sky-yellow-1);
+}
+
+
+/* List Container */
+.sky-list-container {
+  flex: 1;
+  padding: 40px 20px;
+  animation: fadeIn 0.5s ease-in;
+}
+
+.sky-list-sort {
+  border: 2px solid var(--sky-yellow-4);
+  border-radius: var(--sky-radius-sm);
+  transition: var(--sky-transition);
+}
+
+.sky-list-sort:focus {
+  border-color: var(--sky-yellow-5);
+  box-shadow: 0 0 0 0.2rem rgba(238, 225, 2, 0.25);
+  outline: none;
+}
+
+.sky-list-newCreate-img {
+  margin-bottom: 2px;
+}
+
+/* Message */
+.ms-2 {
+  padding: 12px 16px;
+  border-radius: var(--sky-radius-sm);
+  background-color: var(--sky-yellow-1);
+  margin-bottom: 1rem;
+  animation: slideInUp 0.5s ease-out;
+  font-weight: 500;
+  box-shadow: var(--sky-shadow-sm);
+}
+
+/* ==========================================================================
+   5. Layout Components
+   ========================================================================== */
+
+/* Sidebar Menu */
+.sky-Sidemenu {
+  background-color: var(--sky-yellow-2);
+  box-shadow: var(--sky-shadow-lg);
+  left: 0;
+  position: fixed;
+  top: 0;
+  width: var(--sidebar-width);
+  z-index: 1030;
+}
+
+.sky-Sidemenu .nav-link {
+  transition: var(--sky-transition);
+  border-radius: var(--sky-radius-sm);
+  margin: 4px 8px;
+  padding: 10px 15px;
+  position: relative;
+  color: var(--sky-black);
+}
+
+.sky-Sidemenu .nav-link:hover {
+  background-color: var(--sky-yellow-1);
+  transform: translateX(4px);
+  color: var(--sky-black);
+}
+
+/* Header */
+.sky-header {
+  background-color: var(--sky-yellow-4);
+  box-shadow: var(--sky-shadow-md);
+}
+
+/* ==========================================================================
+   6. Page-Specific Styles
+   ========================================================================== */
+
+/* Content Page */
+.sky-content {
+  margin-left: var(--sidebar-width);
+}
+
+.sky-Content-preview,
+.sky-Content-delete {
+  display: flex;
+  flex-direction: column;
+  margin-left: 1.5rem;
+  transition: var(--sky-transition);
+}
+
+.sky-Content-preview:hover,
+.sky-Content-delete:hover {
+  transform: scale(1.1);
+}
+
+.sky-Content-preview-item,
+.sky-Content-delete-item {
+  margin-top: auto;
+  border-radius: 10px;
+  transition: var(--sky-transition);
+}
+
+.sky-Content-preview-item:hover,
+.sky-Content-delete-item:hover {
+  box-shadow: var(--sky-shadow-md);
+  transform: translateY(-2px);
+}
+
+.sky-Content-delete-item {
+  width: 45px;
+}
+
+.sky-Content-publish {
+  align-items: center;
+  display: flex;
+  justify-content: center;
+}
+
+.sky-Content-element-card {
+  background-color: var(--sky-white);
+  border: 2px solid var(--sky-yellow-4);
+  border-radius: var(--sky-radius-md);
+  box-shadow: var(--sky-shadow-md);
+  cursor: pointer;
+  display: flex;
+  padding: 18px 24px;
+  transition: var(--sky-transition);
+  margin-bottom: 12px;
+}
+
+.sky-Content-element-card:hover {
+  box-shadow: var(--sky-shadow-lg);
+  transform: translateY(-2px) scale(1.01);
+  border-color: var(--sky-yellow-5);
+  background-color: var(--sky-yellow-1);
+}
+
+.sky-Content-element-arrow {
+  transition: var(--sky-transition);
+  border-radius: var(--sky-radius-sm);
+  border: 2px solid var(--sky-yellow-4);
+}
+
+.sky-Content-element-arrow:hover {
+  cursor: pointer;
+  background-color: var(--sky-yellow-1);
+  border-color: var(--sky-yellow-4);
+  box-shadow: var(--sky-shadow-md);
+  transform: translateY(-2px) scale(1.1);
+}
+
+.sky-Content-element-delete {
+  transition: var(--sky-transition);
+  border-radius: var(--sky-radius-sm);
+  border: 2px solid var(--sky-yellow-4);
+}
+
+.sky-Content-element-delete:hover {
+  cursor: pointer;
+  background-color: var(--sky-yellow-1);
+  border-color: var(--sky-yellow-4);
+  box-shadow: var(--sky-shadow-md);
+  transform: translateY(-2px) scale(1.1);
+}
+
+.sky-control-publish-input {
+  margin-right: 1rem;
+}
+
+/* Login Page */
+.sky-Login-container {
+  height: 90vh !important;
+}
+
+.sky-Login-logo {
+  width: 50px;
+}
+
+.sky-Login-form {
+  background-color: var(--sky-yellow-1);
+  max-width: 400px;
+}
+
+.sky-Login-form .card-body {
+  padding: 2.5rem;
+}
+
+/* User Page */
+.sky-User-container {
+  flex: 1;
+  padding: 40px 20px;
+}
+
+.sky-User-box {
+  background-color: var(--sky-white);
+  border: 2px solid var(--sky-yellow-4);
+  border-radius: var(--sky-radius-lg);
+  box-shadow: var(--sky-shadow-lg);
+  margin: 0 auto;
+  max-width: 800px;
+  padding: 32px;
+  transition: var(--sky-transition);
+}
+
+.sky-User-box:hover {
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.15);
+  background-color: var(--sky-yellow-1);
+}
+
+.sky-User-adminSwitch {
+  align-items: center;
+  display: flex;
+  justify-content: center;
+}
+
+/* Setting Page */
+.sky-Setting-content {
+  max-width: 1500px;
+}
+
+.sky-Setting-card {
+  background-color: var(--sky-white);
+  border: 2px solid var(--sky-yellow-4);
+  border-radius: var(--sky-radius-lg);
+  box-shadow: var(--sky-shadow-lg);
+  transition: var(--sky-transition);
+}
+
+.sky-Setting-card:hover {
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.15);
+  background-color: var(--sky-yellow-1);
+}
+
+/* Button - New Create */
+.sky-button-newCreate button {
+  background-color: var(--sky-yellow-4);
+  border: 2px solid var(--sky-yellow-4);
+  border-radius: var(--sky-radius-md);
+  box-shadow: var(--sky-shadow-md);
+  transition: var(--sky-transition);
+  font-weight: 600;
+  color: var(--sky-black);
+}
+
+.sky-button-newCreate button:hover {
+  background-color: var(--sky-yellow-5);
+  box-shadow: var(--sky-shadow-lg);
+  transform: translateY(-3px) scale(1.05);
+  border-color: var(--sky-yellow-5);
+}
+
+.sky-button-newCreate button:active {
+  transform: translateY(-1px) scale(1.02);
+  border-bottom-width: 2px;
+}
+
+/* ==========================================================================
+   7. Bootstrap Overrides
+   ========================================================================== */
+
+/* Buttons */
+.btn-warning {
+  background-color: var(--sky-yellow-4);
+  border: 2px solid var(--sky-yellow-4);
+  border-radius: var(--sky-radius-sm);
+  font-weight: 600;
+  transition: var(--sky-transition);
+  color: var(--sky-black);
+}
+
+.btn-warning:hover {
+  background-color: var(--sky-yellow-5);
+  box-shadow: var(--sky-shadow-md);
+  transform: translateY(-2px);
+  border-color: var(--sky-yellow-5);
+  color: var(--sky-black);
+}
+
+.btn-warning:active {
+  transform: translateY(0);
+  border-bottom-width: 2px;
+}
+
+/* Cards */
+.card {
+  border-radius: var(--sky-radius-lg);
+  box-shadow: var(--sky-shadow-md);
+  transition: var(--sky-transition);
+  border: 2px solid var(--sky-yellow-4);
+}
+
+.card:hover {
+  box-shadow: var(--sky-shadow-lg);
+  transform: translateY(-2px);
+}
+
+/* Form Controls */
+.form-control,
+.form-select {
+  background-color: var(--sky-white);
+  transition: var(--sky-transition);
+}
+
+.form-control:focus,
+.form-select:focus {
+  background-color: var(--sky-white);
+  border-color: var(--sky-yellow-4);
+  box-shadow: 0 0 0 0.2rem rgba(238, 225, 2, 0.25);
+}
+
+.border-warning {
+  border-color: var(--sky-yellow-4) !important;
+  transition: var(--sky-transition);
+}
+
+.border-warning:focus {
+  border-color: var(--sky-yellow-4) !important;
+  box-shadow: 0 0 0 0.2rem rgba(238, 225, 2, 0.25) !important;
+}
+
+.form-select-lg {
+  background-color: var(--sky-white);
+  border-radius: 10px;
+  transition: var(--sky-transition);
+}
+
+.form-select-lg:focus {
+  background-color: var(--sky-white);
+  border-color: var(--sky-yellow-4);
+  box-shadow: 0 0 0 0.2rem rgba(238, 225, 2, 0.25);
+}
+
+textarea.form-control {
+  background-color: var(--sky-white);
+  border-radius: 10px;
+  transition: var(--sky-transition);
+  resize: vertical;
+}
+
+textarea.form-control:focus {
+  background-color: var(--sky-white);
+  border-color: var(--sky-yellow-4);
+  box-shadow: 0 0 0 0.2rem rgba(238, 225, 2, 0.25);
+}
+
+/* Modals */
+.modal-content {
+  border-radius: var(--sky-radius-lg);
+  box-shadow: var(--sky-shadow-lg);
+  border: 2px solid var(--sky-yellow-4);
+  overflow: hidden;
+}
+
+.modal-header {
+  background-color: var(--sky-yellow-4);
+  font-weight: 700;
+  padding: 1.25rem 1.5rem;
+  border-bottom: 2px solid var(--sky-yellow-4);
+}
+
+.modal-body {
+  padding: 1.5rem;
+  max-height: 70vh;
+  overflow-y: auto;
+}
+
+.modal-body .sky-list-container {
+  flex: none;
+  padding: 20px 10px;
+  animation: none;
+}
+
+.modal-body .sky-list-card:hover {
+  box-shadow: var(--sky-shadow-md);
+  background-color: var(--sky-yellow-2);
+}
+
+.modal-footer {
+  border-top: 2px solid var(--sky-yellow-4);
+  padding: 1.25rem 1.5rem;
+}
+
+.modal-footer .btn {
+  border-radius: var(--sky-radius-sm);
+  font-weight: 600;
+}
+
+.modal-footer .btn:hover {
+  box-shadow: var(--sky-shadow-sm);
+}
+
+/* ==========================================================================
+   8. Animations
+   ========================================================================== */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.sky-list-card,
+.sky-Content-element-card,
+.sky-User-box,
+.sky-Setting-card {
+  animation: slideInUp 0.5s ease-out;
+}
+
+/* ==========================================================================
+   9. Responsive Design
+   ========================================================================== */
+
+/* Mobile: 576px以下 */
+@media (max-width: 576px) {
+  .sky-button-newCreate {
+    width: 100%;
+  }
+}
+
+/* Tablet: 576px以上 */
+@media (min-width: 576px) {
+  .sky-button-newCreate {
+    margin-left: auto;
+    width: 150px;
+  }
+}
+
+/* Smartphone: 768px以下 */
+@media screen and (max-width: 768px) {
+  .sky-control,
+  .sky-control-publish {
+    display: inline;
+  }
+  
+  .sky-header {
+    display: block !important;
+  }
+  
+  .sky-Sidemenu {
+    display: none !important;
+  }
+  
+  .sky-content,
+  .sky-footer,
+  .sky-section,
+  .sky-Setting-content {
+    margin-left: 0;
+  }
+  
+  .sky-Content-publish {
+    margin-bottom: 1rem !important;
+    margin-top: 1rem !important;
+    flex: 1;
+  }
+  
+  .sky-Content-preview,
+  .sky-Content-delete {
+    margin-bottom: 0.5rem;
+    margin-left: 1rem;
+  }
+}
+
+/* Tablet: 768px以上1024px以下 */
+@media screen and (min-width: 768px) and (max-width: 1024px) {
+  .sky-Sidemenu {
+    display: none !important;
+  }
+  
+  .sky-header {
+    display: block !important;
+  }
+  
+  .sky-control,
+  .sky-control-publish {
+    display: flex;
+  }
+  
+  .sky-section,
+  .sky-footer,
+  .sky-content,
+  .sky-Setting-content {
+    margin-left: 0;
+  }
+  
+  .sky-control {
+    justify-content: space-between;
+  }
+  
+  .sky-Content-publish {
+    margin-left: 0.2rem !important;
+    padding-top: 1.7rem !important;
+  }
+}
+
+/* Desktop: 1024px以上 */
+@media screen and (min-width: 1024px) {
+  .sky-section,
+  .sky-footer,
+  .sky-content,
+  .sky-Setting-content {
+    margin-left: var(--sidebar-width);
+  }
+  
+  .sky-Sidemenu {
+    display: block !important;
+  }
+  
+  .sky-header {
+    display: none !important;
+  }
+  
+  .sky-control,
+  .sky-control-publish {
+    display: flex;
+  }
+  
+  .sky-control {
+    justify-content: space-between;
+  }
+  
+  .sky-Content-publish {
+    margin-left: 0.2rem !important;
+    padding-top: 1.7rem !important;
+  }
+}
+
+/* ========================================
+   コンテンツプレビュー用スタイル
+   ======================================== */
+.sky-content-preview a {
+  color: #0066cc !important;
+  text-decoration: underline !important;
+}
+
+.sky-content-preview a:hover {
+  color: #004499 !important;
+  text-decoration: underline !important;
+  opacity: 1;
+}
+
+.sky-content-preview a:visited {
+  color: #551a8b !important;
+}
+
+/* ========================================
+   画像一覧用スタイル
+   ======================================== */
+.sky-list-card-image {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.sky-list-thumbnail {
+  flex-shrink: 0;
+  width: 80px;
+  height: 80px;
+  overflow: hidden;
+  border-radius: 4px;
+  background-color: #f0f0f0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.sky-thumbnail-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.sky-list-content {
+  flex-grow: 1;
+  min-width: 0;
+}
+
+.sky-list-content h3 {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* 動画一覧用サムネイルスタイル */
+.sky-list-thumbnail-video {
+  width: 107px;
+  height: 80px;
+  position: relative;
+}
+
+.sky-list-play-icon {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: rgba(0, 0, 0, 0.7);
+  color: #fff;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  pointer-events: none;
+}
+
+/* モバイル対応 */
+@media screen and (max-width: 767px) {
+  .sky-list-thumbnail {
+    width: 60px;
+    height: 60px;
+  }
+  
+  .sky-list-thumbnail-video {
+    width: 80px;
+    height: 60px;
+  }
+  
+  .sky-list-play-icon {
+    width: 24px;
+    height: 24px;
+    font-size: 10px;
+  }
+}
+
+/* ========================================
+   モーダル内サムネイル用スタイル
+   ======================================== */
+.sky-modal-thumbnail {
+  flex-shrink: 0;
+  width: 100px;
+  height: 75px;
+  overflow: hidden;
+  border-radius: 6px;
+  background-color: #f0f0f0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.sky-modal-thumbnail-video {
+  width: 120px;
+  height: 68px;
+}
+
+.sky-modal-thumbnail-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.sky-modal-thumbnail-placeholder {
+  color: #999;
+  font-size: 12px;
+  text-align: center;
+}
+
+.sky-modal-play-icon {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: rgba(0, 0, 0, 0.7);
+  color: #fff;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  pointer-events: none;
+}
+
+/* モバイル対応 */
+@media screen and (max-width: 576px) {
+  .sky-modal-thumbnail {
+    width: 70px;
+    height: 52px;
+  }
+  
+  .sky-modal-thumbnail-video {
+    width: 80px;
+    height: 45px;
+  }
+  
+  .sky-modal-play-icon {
+    width: 24px;
+    height: 24px;
+    font-size: 10px;
+  }
+}

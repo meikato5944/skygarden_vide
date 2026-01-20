@@ -1,0 +1,394 @@
+:root {
+  --sidebar-width: 250px;
+  --sky-black: #000000;
+  --sky-yellow-1: #fff888;
+  --sky-yellow-2: #fff100;
+  --sky-yellow-3: #ffffe9;
+  --sky-yellow-4: #eee102;
+  --sky-yellow-5: #ffd700;
+}
+
+a {
+  text-decoration: none !important;
+}
+
+a,
+button,
+span,
+select,
+option,
+.nav-link {
+  color: var(--sky-black);
+}
+
+body {
+  background-color: var(--sky-yellow-2);
+  color: var(--sky-black);
+  display: flex;
+  flex-direction: column;
+  font-family: Arial, sans-serif;
+  min-height: 100vh;
+}
+
+section {
+  min-height: 94vh;
+}
+
+footer {
+  background-color: var(--sky-yellow-4);
+  color: var(--sky-black);
+  margin-top: auto;
+}
+
+main {
+  flex: 1;
+}
+
+input {
+  background-color: var(--sky-yellow-5);
+}
+
+/* コーディング規約---------------------------------------------- */
+/* 定義1: */
+/* bootstrapのクラス名との区別のため接頭語に「sky-」をつけること  */
+
+/* 様式1: sky-画面名-部品名-部品名
+各画面の個別の部品に対して定義する
+※画面名は接頭語を大文字にすること  例:sky-Login-logo */
+
+/* 様式2: sky-部品名
+全体の部品に対して定義する */
+/* ------------------------------------------------------------ */
+.sky-fc-1 {
+  color: var(--sky-black) !important;
+}
+
+.sky-bg-1 {
+  background-color: var(--sky-yellow-1) !important;
+}
+.sky-bg-2 {
+  background-color: var(--sky-yellow-2) !important;
+}
+.sky-bg-3 {
+  background-color: var(--sky-yellow-3) !important;
+}
+.sky-bg-4 {
+  background-color: var(--sky-yellow-4) !important;
+}
+.sky-bg-5 {
+  background-color: var(--sky-yellow-5) !important;
+}
+
+.sky-btn-upload {
+  background-color: var(--sky-yellow-4);
+  color: var(--sky-black);
+  font-weight: bold;
+}
+.sky-btn-upload:hover {
+  background-color: var(--sky-yellow-5);
+}
+
+.sky-form-label {
+  color: var(--sky-black);
+  font-weight: bold;
+}
+
+.sky-image-container {
+  flex: 1;
+  padding: 40px 20px;
+}
+.sky-image-box {
+  background-color: var(--sky-yellow-1);
+  border: 2px solid var(--sky-yellow-4);
+  border-radius: 5px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  margin-bottom: 20px;
+  padding: 20px;
+}
+
+.sky-input {
+  background-color: var(--sky-yellow-3);
+}
+.sky-input-head {
+  min-height: 100px !important;
+}
+.sky-input-content {
+  min-height: 500px !important;
+}
+.sky-input-switch {
+  height: 20px !important;
+  width: 50px !important;
+}
+.sky-input-pulldown select {
+  font-size: var(--bs-body-font-size);
+}
+
+.sky-logo {
+  margin-left: 10px;
+  padding: 0 3px 2px 0;
+  width: 45px;
+}
+
+.sky-list-container {
+  flex: 1;
+  padding: 40px 20px;
+}
+.sky-list-card {
+  background-color: var(--sky-yellow-1);
+  border: 2px solid var(--sky-yellow-4);
+  border-radius: 5px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  cursor: pointer;
+  margin-bottom: 15px;
+  padding: 15px 20px;
+  transition: transform 0.3s, box-shadow 0.3s;
+}
+.sky-list-card:hover {
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transform: translateY(5px);
+}
+.sky-list-sort {
+  border: var(--bs-border-width) solid var(--sky-yellow-4);
+}
+.sky-list-newCreate-img {
+  margin-bottom: 2px;
+}
+
+.sky-pagination-link {
+  background-color: var(--sky-yellow-2);
+  border: none;
+  color: var(--sky-black);
+  font-size: 1.2rem !important;
+}
+
+.sky-submit {
+  border: 2px solid var(--sky-yellow-4);
+  border-radius: 5px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  cursor: pointer;
+  font-weight: 700;
+  padding: 15px 0px;
+  transition: transform 0.3s, box-shadow 0.3s;
+  width: 100%;
+}
+.sky-submit:hover {
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transform: translateY(5px);
+}
+
+.sky-uploaded-image-preview {
+  border: 2px solid var(--sky-yellow-4);
+  border-radius: 5px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  display: block;
+  height: auto;
+  margin: 20px auto;
+  width: 150px;
+}
+
+/* 画面個別 -------------------------------------------------------------------------*/
+/* Content */
+.sky-Content-preview,
+.sky-Content-delete {
+  display: flex;
+  flex-direction: column;
+  margin-left: 1.5rem;
+}
+.sky-Content-preview-item,
+.sky-Content-delete-item {
+  margin-top: auto;
+}
+.sky-Content-delete-item {
+  width: 45px;
+}
+.sky-Content-publish {
+  align-items: center;
+  display: flex;
+  justify-content: center;
+}
+.sky-Content-element-card {
+  background-color: var(--sky-yellow-1);
+  border-radius: 5px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  cursor: pointer;
+  display: flex;
+  padding: 15px 20px;
+  transition: transform 0.3s, box-shadow 0.3s;
+}
+.sky-Content-element-card:hover {
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transform: translateY(1px);
+}
+
+.sky-Content-element-arrow:hover {
+  cursor: pointer;
+  background-color: var(--sky-yellow-1);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transform: translateY(1px);
+}
+
+.sky-Content-element-delete:hover {
+  cursor: pointer;
+  background-color: var(--sky-yellow-1);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transform: translateY(1px);
+}
+
+/* Login */
+.sky-Login-logo {
+  width: 50px;
+}
+.sky-Login-form {
+  background-color: var(--sky-yellow-1);
+  max-width: 400px;
+}
+.sky-Login-container {
+  height: 90vh !important;
+}
+
+/* Setting */
+.sky-Setting-card {
+  background-color: var(--sky-yellow-1);
+}
+.sky-Setting-content {
+  max-width: 1500px;
+}
+
+/* Sidemenu */
+.sky-Sidemenu {
+  background-color: var(--sky-yellow-2);
+  border-right: 3px solid var(--sky-yellow-4);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  left: 0;
+  position: fixed;
+  top: 0;
+  width: var(--sidebar-width);
+  z-index: 999;
+}
+.sky-Sidemenu-dropdown {
+  background-color: var(--sky-yellow-1);
+  border-right: 3px solid var(--sky-yellow-4);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+/* User */
+.sky-User-container {
+  flex: 1;
+  padding: 40px 20px;
+}
+.sky-User-box {
+  background-color: var(--sky-yellow-1);
+  border: 2px solid var(--sky-yellow-4);
+  border-radius: 5px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  margin: 0 auto;
+  max-width: 800px;
+  padding: 20px;
+}
+.sky-User-adminSwitch {
+  align-items: center;
+  display: flex;
+  justify-content: center;
+}
+
+/* Responsive --------------------------------------------------------------*/
+/*576px以下 */
+@media (max-width: 576px) {
+  .sky-button-newCreate {
+    width: 100%;
+  }
+}
+/*576px以上*/
+@media (min-width: 576px) {
+  .sky-button-newCreate {
+    margin-left: auto;
+    width: 150px;
+  }
+}
+/*Smartphone 768px以下 */
+@media screen and (max-width: 768px) {
+  .sky-control,
+  .sky-control-publish {
+    display: inline;
+  }
+  .sky-header {
+    display: block !important;
+  }
+  .sky-Sidemenu {
+    display: none !important;
+  }
+  .sky-content,
+  .sky-footer,
+  .sky-section,
+  .sky-Setting-content {
+    margin-left: 0px;
+  }
+  .sky-Content-publish {
+    margin-bottom: 1rem !important;
+    margin-top: 1rem !important;
+    flex: 1; /* 幅を自動的に調整 */
+  }
+  .sky-Content-preview,
+  .sky-Content-delete {
+    margin-bottom: 0.5rem;
+    margin-left: 1rem;
+  }
+}
+/*tablet 768px以上1024px以下 */
+@media screen and (min-width: 768px) and (max-width: 1024px) {
+  .sky-Sidemenu {
+    display: none !important;
+  }
+  .sky-header {
+    display: block !important;
+  }
+  .sky-control,
+  .sky-control-publish {
+    display: flex;
+  }
+  .sky-section,
+  .sky-footer,
+  .sky-content,
+  .sky-Setting-content {
+    margin-left: 0px;
+  }
+  .sky-control {
+    justify-content: space-between;
+  }
+  .sky-Content-publish {
+    margin-left: 0.2rem !important;
+    padding-top: 1.7rem !important;
+  }
+  .sky-control-publish-input {
+    margin-right: 1rem;
+  }
+}
+/*PC 1024px以上 */
+@media screen and (min-width: 1024px) {
+  .sky-section,
+  .sky-footer,
+  .sky-content,
+  .sky-Setting-content {
+    margin-left: var(--sidebar-width);
+  }
+  .sky-Sidemenu {
+    display: block !important;
+  }
+  .sky-header {
+    display: none !important;
+  }
+  .sky-control,
+  .sky-control-publish {
+    display: flex;
+  }
+  .sky-control {
+    justify-content: space-between;
+  }
+  .sky-Content-publish {
+    margin-left: 0.2rem !important;
+    padding-top: 1.7rem !important;
+  }
+  .sky-control-publish-input {
+    margin-right: 1rem;
+  }
+}
