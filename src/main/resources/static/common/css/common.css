@@ -606,7 +606,43 @@ textarea.form-control:focus {
 }
 
 /* ==========================================================================
-   8. Animations
+   8. Pagination
+   ========================================================================== */
+.pagination .page-link {
+  background-color: var(--sky-yellow-1);
+  border: 2px solid var(--sky-yellow-4);
+  color: var(--sky-black);
+  border-radius: var(--sky-radius-sm);
+  margin: 0 4px;
+  padding: 8px 14px;
+  font-weight: 600;
+  transition: var(--sky-transition);
+}
+
+.pagination .page-link:hover {
+  background-color: var(--sky-yellow-4);
+  border-color: var(--sky-yellow-5);
+  color: var(--sky-black);
+  transform: translateY(-2px);
+  box-shadow: var(--sky-shadow-md);
+}
+
+.pagination .page-item.active .page-link {
+  background-color: var(--sky-yellow-4);
+  border-color: var(--sky-yellow-4);
+  color: var(--sky-black);
+  box-shadow: var(--sky-shadow-sm);
+}
+
+.pagination .page-item.disabled .page-link {
+  background-color: var(--sky-yellow-3);
+  border-color: var(--sky-yellow-4);
+  color: rgba(26, 26, 26, 0.5);
+  cursor: not-allowed;
+}
+
+/* ==========================================================================
+   9. Animations
    ========================================================================== */
 @keyframes fadeIn {
   from {
