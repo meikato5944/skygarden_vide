@@ -155,6 +155,11 @@ public interface ContentMapper {
 	String getElementColor();
 	
 	/**
+	 * 設定値を名前で取得する
+	 */
+	String getSettingByName(@Param("name") String name);
+	
+	/**
 	 * URL一覧を取得する
 	 */
 	List<HashMap<String, String>> getUrlList();

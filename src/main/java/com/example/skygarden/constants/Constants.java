@@ -104,6 +104,7 @@ public final class Constants {
 	// 設定名
 	// ============================================
 	public static final String CONFIG_ELEMENTS_COLOR_VALUE = "elements-color-value";
+	public static final String CONFIG_DEFAULT_PUBLISH_ON = "default-publish-on";
 	
 	// ============================================
 	// 日時フォーマット

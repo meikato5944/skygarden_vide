@@ -278,6 +278,22 @@
                                         <input type="hidden" id="" name="" value="" />
                                     </div>
                                 </div>
+                                
+                                <div class="setting-section">
+                                    <h5 class="setting-section-title">デフォルト公開設定</h5>
+                                    <div class="d-flex align-items-center">
+                                        <div class="form-check form-switch">
+                                            <input class="form-check-input sky-input-switch" type="checkbox" role="switch" 
+                                                   id="default-publish-on" name="default-publish-on" value="1" 
+                                                   th:checked="${defaultPublishOn == '1'}" />
+                                            <label class="form-check-label ms-2" for="default-publish-on">
+                                                新規コンテンツ作成時にpublishをオンで開く
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <p class="text-muted small mt-2 mb-0">オンにすると、コンテンツ入稿画面を開いた際にデフォルトでpublishがオンになります。</p>
+                                </div>
+                                
                                 <button type="button" class="btn btn-warning fw-bold sky-bg-2 sky-submit" data-bs-toggle="modal" data-bs-target="#submitModal">
                                     登録
                                 </button>

@@ -52,15 +52,24 @@ public class Setting {
 
 	/**
 	 * 設定情報を更新する
-	 * 現在は構成要素の色設定のみ対応
+	 * 構成要素の色設定とデフォルト公開設定に対応
 	 * 
 	 * @param request HTTPリクエスト
 	 * @param response HTTPレスポンス
 	 * @param session HTTPセッション
 	 */
 	public void doUpdate(HttpServletRequest request, HttpServletResponse response, HttpSession session) {
+		// 構成要素の色設定を更新
 		String elementsValue = request.getParameter(Constants.CONFIG_ELEMENTS_COLOR_VALUE);
 		mapper.updateSetting(elementsValue, Constants.CONFIG_ELEMENTS_COLOR_VALUE);
+		
+		// デフォルト公開設定を更新
+		String defaultPublishOn = request.getParameter(Constants.CONFIG_DEFAULT_PUBLISH_ON);
+		if (defaultPublishOn == null) {
+			defaultPublishOn = Constants.FLAG_NO;
+		}
+		mapper.updateSetting(defaultPublishOn, Constants.CONFIG_DEFAULT_PUBLISH_ON);
+		
 		session.setAttribute(Constants.SESSION_REGISTER_MESSAGE, Constants.MESSAGE_SETTING_REGISTER_SUCCESS);
 		try {
 			response.sendRedirect(Constants.PATH_ROOT);
@@ -93,5 +102,16 @@ public class Setting {
 			}
 		}
 		return results;
+	}
+	
+	/**
+	 * デフォルト公開設定を取得する
+	 * 新規コンテンツ作成時にpublishをオンで開くかオフで開くかを決定する
+	 * 
+	 * @return "1" = オン（公開）、"0" or null = オフ（非公開）
+	 */
+	public String getDefaultPublishOn() {
+		String result = mapper.getSettingByName(Constants.CONFIG_DEFAULT_PUBLISH_ON);
+		return result != null ? result : Constants.FLAG_NO;
 	}
 }

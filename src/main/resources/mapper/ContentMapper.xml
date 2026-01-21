@@ -128,6 +128,10 @@
 	<select id="getElementColor" resultType="String">
 		SELECT value FROM config WHERE name = 'elements-color-value'
 	</select>
+	
+	<select id="getSettingByName" resultType="String">
+		SELECT value FROM config WHERE name = #{name}
+	</select>
 
 	<select id="getUrlList" resultMap="HashMapResultMap">
 		SELECT id, url FROM content WHERE url &lt;&gt; '' ORDER BY url

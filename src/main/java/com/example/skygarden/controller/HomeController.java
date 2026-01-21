@@ -152,6 +152,7 @@ public class HomeController {
             String publishflg_keep = "";
             
             if (!id.equals(Constants.EMPTY_STRING)) {
+                // 既存コンテンツの編集
                 HashMap<String, String> result = content.doSearch(id);
                 if (result != null) {
                     template = result.get("template") != null ? result.get("template") : "";
@@ -164,6 +165,9 @@ public class HomeController {
                     schedule_unpublished = result.get("schedule_unpublished") != null ? result.get("schedule_unpublished") : "";
                     publishflg_keep = result.get("publishflg_keep") != null ? result.get("publishflg_keep") : "";
                 }
+            } else {
+                // 新規作成時はデフォルト公開設定を適用
+                publishflg_keep = setting.getDefaultPublishOn();
             }
             
             // 共通属性を設定
@@ -506,10 +510,13 @@ public class HomeController {
     public String setting(Model model) {
         try {
             List<HashMap<String, String>> colorElements = setting.elementsColorList();
+            String defaultPublishOn = setting.getDefaultPublishOn();
             model.addAttribute("colorElements", colorElements != null ? colorElements : new java.util.ArrayList<>());
+            model.addAttribute("defaultPublishOn", defaultPublishOn);
         } catch (Exception e) {
             e.printStackTrace();
             model.addAttribute("colorElements", new java.util.ArrayList<>());
+            model.addAttribute("defaultPublishOn", Constants.FLAG_NO);
         }
         return "setting";
     }
