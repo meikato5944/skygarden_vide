@@ -64,10 +64,12 @@ public class HomeController {
     
     /**
      * トップページ（コンテンツ一覧）のルーティング
+     * キーワード検索にも対応
      * 
      * @param mode モード
      * @param sort ソート順
      * @param page ページ番号
+     * @param keyword 検索キーワード（オプション）
      * @param model モデル
      * @param session セッション
      * @return list.html
@@ -76,6 +78,7 @@ public class HomeController {
     public String index(@RequestParam(required = false, defaultValue = "") String mode,
                        @RequestParam(required = false, defaultValue = "") String sort,
                        @RequestParam(required = false, defaultValue = "1") String page,
+                       @RequestParam(required = false, defaultValue = "") String keyword,
                        Model model, HttpSession session) {
         try {
             String[][] sortOptions = Constants.SORT_OPTIONS_CONTENT;
@@ -106,11 +109,21 @@ public class HomeController {
                 sortOutput.append("<option value=\"" + sortOptions[i][0] + "\" " + selected + ">" + sortOptions[i][1] + "</option>");
             }
             
-            List<HashMap<String, String>> results = content.getList(sort, thisPage, mode);
-            String pagerOutput = content.getPager(thisPage, mode, sort);
+            List<HashMap<String, String>> results;
+            String pagerOutput;
+            
+            // キーワードが指定されている場合は検索、そうでない場合は通常の一覧取得
+            if (keyword != null && !keyword.trim().isEmpty()) {
+                results = content.searchList(sort, thisPage, mode, keyword);
+                pagerOutput = content.getSearchPager(thisPage, mode, sort, keyword);
+            } else {
+                results = content.getList(sort, thisPage, mode);
+                pagerOutput = content.getPager(thisPage, mode, sort);
+            }
             
             model.addAttribute("mode", mode);
             model.addAttribute("sort", sort);
+            model.addAttribute("keyword", keyword);
             model.addAttribute("screenName", screenName);
             model.addAttribute("registerMessage", registerMessage);
             model.addAttribute("results", results != null ? results : new java.util.ArrayList<>());
@@ -120,6 +133,7 @@ public class HomeController {
             e.printStackTrace();
             model.addAttribute("screenName", Constants.SCREEN_NAME_CONTENT);
             model.addAttribute("registerMessage", Constants.EMPTY_STRING);
+            model.addAttribute("keyword", Constants.EMPTY_STRING);
             model.addAttribute("results", new java.util.ArrayList<>());
             model.addAttribute("pagerOutput", Constants.EMPTY_STRING);
             model.addAttribute("sortOptions", Constants.SORT_OPTIONS_CONTENT);

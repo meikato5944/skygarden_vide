@@ -188,4 +188,18 @@ public interface ContentMapper {
 	 * スケジュール非公開日時をクリアする
 	 */
 	void clearScheduleUnpublished(@Param("id") String id);
+	
+	/**
+	 * キーワードでコンテンツを検索する（ページネーション対応）
+	 * タイトル、URL、コンテンツ本文を対象に部分一致検索を行う
+	 */
+	List<HashMap<String, String>> searchByKeyword(@Param("table") String table,
+			@Param("type") String type, @Param("keyword") String keyword,
+			@Param("sort") String sort, @Param("limit") int limit, @Param("offset") int offset);
+	
+	/**
+	 * キーワード検索結果の総件数を取得する
+	 */
+	int getContentSizeByKeyword(@Param("table") String table, @Param("type") String type,
+			@Param("keyword") String keyword);
 }

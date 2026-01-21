@@ -13,24 +13,45 @@
     
     <main>
         <section class="sky-list-container sky-section">
-            <h1 class="ms-1 mb-3" th:text="${screenName} + '一覧'"></h1>
-            <div th:if="${registerMessage != null and registerMessage != ''}" class="ms-2" th:text="${registerMessage}"></div>
-            <div class="row">
-                <div class="col-xs-12 col-sm-3 mb-2 sky-input-pulldown">
-                    <select class="form-select sky-bg-4 sky-list-sort sky-fc-1" id="sort" name="sort" onchange="window.location.href='/?mode=' + new URLSearchParams(window.location.search).get('mode') + '&sort=' + this.value">
+            <div class="d-flex mb-3 align-items-center justify-content-between">
+                <div>
+                    <h1 class="ms-1 mb-0" th:text="${screenName} + '一覧'"></h1>
+                </div>
+                <div class="sky-button-newCreate">
+                    <a th:href="@{'/content?mode=' + ${mode}}">
+                        <button class="btn btn-warning sky-bg-4 px-4 py-2 fw-bold" style="font-size: 1.1rem;">
+                            <span>newCreate</span>
+                        </button>
+                    </a>
+                </div>
+            </div>
+            <div th:if="${registerMessage != null and registerMessage != ''}" class="ms-2 mb-3" th:text="${registerMessage}"></div>
+            <!-- 検索フォームとソート -->
+            <div class="d-flex mb-3 justify-content-between align-items-center">
+                <div class="ps-2 pt-2" style="flex: 0 0 auto; max-width: 65%;">
+                    <form class="d-flex" id="searchForm" method="get" action="/">
+                        <input type="hidden" name="mode" th:value="${mode}" />
+                        <input type="hidden" name="sort" th:value="${sort}" />
+                        <input type="text" class="form-control me-2 sky-bg-4 sky-fc-1 sky-search-input" id="keyword" name="keyword" 
+                               placeholder="タイトル、URL、コンテンツで検索..." 
+                               th:value="${keyword}"
+                               style="flex: 1; border: none; outline: none; box-shadow: none; min-width: 350px;" />
+                        <button class="btn btn-warning sky-bg-4 me-2" type="submit">検索</button>
+                        <a th:href="@{'/?mode=' + ${mode}}" class="btn btn-warning sky-bg-4" th:if="${keyword != null and keyword != ''}">クリア</a>
+                    </form>
+                </div>
+                <div class="pt-2 sky-input-pulldown" style="flex: 0 0 auto; min-width: 180px;">
+                    <select class="form-select sky-bg-4 sky-list-sort sky-fc-1" id="sort" name="sort" onchange="updateUrlWithSort(this.value)">
                         <option th:each="option : ${sortOptions}" 
                                 th:value="${option[0]}" 
                                 th:text="${option[1]}"
                                 th:selected="${sort == option[0]}"></option>
                     </select>
                 </div>
-                <div class="col-xs-12 col-sm-9 mb-3 sky-button-newCreate">
-                    <a th:href="@{'/content?mode=' + ${mode}}">
-                        <button class="btn btn-warning w-100 sky-bg-4">
-                            <span>newCreate</span>
-                        </button>
-                    </a>
-                </div>
+            </div>
+            <!-- 検索結果表示 -->
+            <div th:if="${keyword != null and keyword != ''}" class="mb-3">
+                <span class="text-muted">検索キーワード: "<span th:text="${keyword}"></span>"</span>
             </div>
             <div th:each="result : ${results}">
                 <a th:href="@{'/content?mode=' + ${mode} + '&id=' + ${result.id}}">
@@ -70,5 +91,26 @@
     
     <!-- Footer -->
     <footer th:replace="~{fragments/common :: footer}"></footer>
+    
+    <style>
+        .sky-search-input::placeholder {
+            color: #999;
+            opacity: 0.5;
+        }
+    </style>
+    
+    <script th:inline="javascript">
+        // ソート変更時にキーワードも維持する
+        function updateUrlWithSort(sortValue) {
+            var urlParams = new URLSearchParams(window.location.search);
+            var mode = urlParams.get('mode') || '';
+            var keyword = urlParams.get('keyword') || '';
+            var url = '/?mode=' + mode + '&sort=' + sortValue;
+            if (keyword) {
+                url += '&keyword=' + encodeURIComponent(keyword);
+            }
+            window.location.href = url;
+        }
+    </script>
 </body>
 </html>

@@ -84,6 +84,65 @@ public class Content {
 	}
 
 	/**
+	 * キーワードでコンテンツを検索する（ページネーション対応）
+	 * タイトル、URL、コンテンツ本文を対象に部分一致検索を行う
+	 * 
+	 * @param sort ソート順
+	 * @param page ページ番号
+	 * @param type コンテンツタイプ（フィルタリング用）
+	 * @param keyword 検索キーワード
+	 * @return 検索結果のコンテンツ一覧
+	 */
+	public List<HashMap<String, String>> searchList(String sort, int page, String type, String keyword) {
+		int pageSize = appProperties.getPagination().getPageSize();
+		int offset = PaginationUtil.calculateOffset(page, pageSize);
+		return mapper.searchByKeyword(Constants.TABLE_CONTENT, type, keyword, sort, pageSize, offset);
+	}
+
+	/**
+	 * 検索結果用のページネーションHTMLを生成する
+	 * 
+	 * @param page 現在のページ番号
+	 * @param mode モード（URL生成用）
+	 * @param sort ソート順
+	 * @param keyword 検索キーワード
+	 * @return ページネーション用のHTML文字列
+	 */
+	public String getSearchPager(int page, String mode, String sort, String keyword) {
+		StringBuffer output = new StringBuffer();
+		int contentSize = mapper.getContentSizeByKeyword(Constants.TABLE_CONTENT, mode, keyword);
+		int pageSize = appProperties.getPagination().getPageSize();
+		int totalPages = PaginationUtil.calculateTotalPages(contentSize, pageSize);
+		String pageUrl = ScreenNameConverter.getPageUrlByMode(mode);
+		String encodedKeyword = "";
+		try {
+			encodedKeyword = java.net.URLEncoder.encode(keyword, "UTF-8");
+		} catch (Exception e) {
+			encodedKeyword = keyword;
+		}
+		//Previous
+		if (1 < page && totalPages != 0) {
+			String separator = pageUrl.contains("?") ? "&" : "?";
+			output.append("<li class=\"page-item me-4\"><a class=\"page-link sky-pagination-link\" href=\"" + pageUrl + separator + "page=" + (page - 1) + "&sort=" + sort + "&keyword=" + encodedKeyword + "\" aria-label=\"Previous\"><span aria-hidden=\"true\">&laquo;</span></a></li>");
+		}
+		//PageNum
+		for (int i = 1; i <= totalPages; i++) {
+			if (i == page) {
+				output.append("<li class=\"page-item mx-2\">" + i + "</span></li>");
+			} else {
+				String separator = pageUrl.contains("?") ? "&" : "?";
+				output.append("<li class=\"page-item mx-2\"><a class=\"page-link sky-pagination-link\" href=\"" + pageUrl + separator + "page=" + i + "&sort=" + sort + "&keyword=" + encodedKeyword + "\">" + i + "</a></li>");
+			}
+		}
+		//Next
+		if (page < totalPages) {
+			String separator = pageUrl.contains("?") ? "&" : "?";
+			output.append("<li class=\"page-item ms-4\"><a class=\"page-link sky-pagination-link\" href=\"" + pageUrl + separator + "page=" + (page + 1) + "&sort=" + sort + "&keyword=" + encodedKeyword + "\" aria-label=\"Next\"><span aria-hidden=\"true\">&raquo;</span></a></li>");
+		}
+		return output.toString();
+	}
+
+	/**
 	 * すべてのコンテンツ一覧を取得する（ページネーションなし）
 	 * 
 	 * @param table テーブル名

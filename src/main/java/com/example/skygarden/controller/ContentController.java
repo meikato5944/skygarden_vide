@@ -259,10 +259,12 @@ public class ContentController {
 	/**
 	 * コンテンツ一覧を取得する
 	 * ソート順とページネーションに対応している
+	 * キーワード検索にも対応
 	 * 
 	 * @param mode モード（コンテンツタイプのフィルタリング）
 	 * @param sort ソート順
 	 * @param page ページ番号
+	 * @param keyword 検索キーワード（オプション）
 	 * @param request HTTPリクエスト
 	 * @param response HTTPレスポンス
 	 * @param session HTTPセッション
@@ -271,7 +273,7 @@ public class ContentController {
 	 */
 	@GetMapping(Constants.API_GET_LIST)
 	@ResponseBody
-	public ListBean getListApi(@RequestParam(defaultValue = Constants.EMPTY_STRING) String mode, @RequestParam(defaultValue = Constants.EMPTY_STRING) String sort, @RequestParam(defaultValue = "1") String page, HttpServletRequest request, HttpServletResponse response, HttpSession session) throws IOException {
+	public ListBean getListApi(@RequestParam(defaultValue = Constants.EMPTY_STRING) String mode, @RequestParam(defaultValue = Constants.EMPTY_STRING) String sort, @RequestParam(defaultValue = "1") String page, @RequestParam(defaultValue = Constants.EMPTY_STRING) String keyword, HttpServletRequest request, HttpServletResponse response, HttpSession session) throws IOException {
 		ListBean bean = new ListBean();
 		String[][] sortOptions = Constants.SORT_OPTIONS_CONTENT;
 		StringBuffer sortOutput = new StringBuffer();
@@ -302,8 +304,18 @@ public class ContentController {
 			}
 			sortOutput.append("<option value=\"" + sortOptions[i][0] + "\"" + selected + ">" + sortOptions[i][1] + "</option>");
 		}
-		List<HashMap<String, String>> results = content.getList(sort, thisPage, mode);
-		String pagerOutput = content.getPager(thisPage, mode, sort);
+		
+		List<HashMap<String, String>> results;
+		String pagerOutput;
+		
+		// キーワードが指定されている場合は検索、そうでない場合は通常の一覧取得
+		if (keyword != null && !keyword.trim().isEmpty()) {
+			results = content.searchList(sort, thisPage, mode, keyword);
+			pagerOutput = content.getSearchPager(thisPage, mode, sort, keyword);
+		} else {
+			results = content.getList(sort, thisPage, mode);
+			pagerOutput = content.getPager(thisPage, mode, sort);
+		}
 
 		bean.setLoginName(loginName);
 		bean.setScreenName(screenName);
