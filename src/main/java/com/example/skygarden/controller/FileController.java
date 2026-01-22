@@ -224,6 +224,8 @@ public class FileController {
 					String emailError = emailService.sendContentPublishedNotification(title, url, publishDate);
 					if (emailError != null) {
 						registerMessage = Constants.MESSAGE_REGISTER_SUCCESS_WITH_EMAIL_ERROR + " " + emailError;
+					} else {
+						registerMessage = Constants.MESSAGE_REGISTER_SUCCESS_WITH_EMAIL_SUCCESS;
 					}
 				} catch (ParseException e) {
 					log.error("日時パースエラー: {}", e.getMessage());

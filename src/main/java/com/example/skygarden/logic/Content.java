@@ -262,11 +262,13 @@ public class Content {
 			String registerMessage = Constants.MESSAGE_REGISTER_SUCCESS;
 			if (isPublished && emailService != null) {
 				try {
-					SimpleDateFormat sdf = new SimpleDateFormat(Constants.DATE_FORMAT_DATETIME);
+					// 既存のsdf変数を使用
 					Date publishDate = sdf.parse(nowTime.replaceAll("/", "-"));
 					String emailError = emailService.sendContentPublishedNotification(title, url, publishDate);
 					if (emailError != null) {
 						registerMessage = Constants.MESSAGE_REGISTER_SUCCESS_WITH_EMAIL_ERROR + " " + emailError;
+					} else {
+						registerMessage = Constants.MESSAGE_REGISTER_SUCCESS_WITH_EMAIL_SUCCESS;
 					}
 				} catch (ParseException e) {
 					// 日時パースエラーは無視（メール送信のみ失敗）
@@ -396,11 +398,13 @@ public class Content {
 			String registerMessage = Constants.MESSAGE_REGISTER_SUCCESS;
 			if (isFirstPublish && emailService != null) {
 				try {
-					SimpleDateFormat sdf = new SimpleDateFormat(Constants.DATE_FORMAT_DATETIME);
+					// 既存のsdf変数を使用
 					Date publishDate = sdf.parse(nowTime.replaceAll("/", "-"));
 					String emailError = emailService.sendContentPublishedNotification(title, url, publishDate);
 					if (emailError != null) {
 						registerMessage = Constants.MESSAGE_REGISTER_SUCCESS_WITH_EMAIL_ERROR + " " + emailError;
+					} else {
+						registerMessage = Constants.MESSAGE_REGISTER_SUCCESS_WITH_EMAIL_SUCCESS;
 					}
 				} catch (ParseException e) {
 					// 日時パースエラーは無視（メール送信のみ失敗）

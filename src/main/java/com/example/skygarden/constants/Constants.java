@@ -151,6 +151,7 @@ public final class Constants {
 	public static final String ERROR_PASSWORD_INCORRECT = "パスワードが正しくありません";
 	public static final String MESSAGE_REGISTER_SUCCESS = "登録しました。";
 	public static final String MESSAGE_REGISTER_FAILED = "登録に失敗しました。";
+	public static final String MESSAGE_REGISTER_SUCCESS_WITH_EMAIL_SUCCESS = "登録しました。（メール送信に成功しました）";
 	public static final String MESSAGE_REGISTER_SUCCESS_WITH_EMAIL_ERROR = "登録しました。（メール送信に失敗しました）";
 	public static final String MESSAGE_SETTING_REGISTER_SUCCESS = "設定を登録しました。";
 	public static final String MESSAGE_DELETE_SUCCESS = "削除しました。";
