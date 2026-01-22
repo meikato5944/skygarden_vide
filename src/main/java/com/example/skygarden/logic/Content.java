@@ -1,8 +1,10 @@
 package com.example.skygarden.logic;
 
 import java.io.IOException;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
@@ -13,6 +15,7 @@ import com.example.skygarden.bean.DirectoryNodeBean;
 import com.example.skygarden.config.AppProperties;
 import com.example.skygarden.constants.Constants;
 import com.example.skygarden.mapper.ContentMapper;
+import com.example.skygarden.service.EmailService;
 import com.example.skygarden.util.PaginationUtil;
 import com.example.skygarden.util.ScreenNameConverter;
 
@@ -58,6 +61,10 @@ public class Content {
 	/** アプリケーション設定プロパティ */
 	@Autowired
 	private AppProperties appProperties;
+	
+	/** メール送信サービス */
+	@Autowired(required = false)
+	private EmailService emailService;
 
 	/**
 	 * コンテンツをIDで検索する
@@ -242,13 +249,34 @@ public class Content {
 			}
 			String nowTime = CommonProc.createNow();
 			int id = mapper.create(nowTime, nowTime, name, name, url, title, head, content, type, elementcolor, template, schedule_published, schedule_unpublished, published);
+			boolean isPublished = false;
 			if (published.equals(Constants.FLAG_YES)) {
 				//過去日、現在日時、空だった場合に公開(未来日はバッチで公開)
 				if (publishParseResult == 1 || publishParseResult == 0 || schedule_published.equals(Constants.EMPTY_STRING)) {
 					mapper.createPublic(id, nowTime, nowTime, name, name, url, title, head, content, type, elementcolor, template, schedule_published, schedule_unpublished, published);
+					isPublished = true;
 				}
 			}
-			session.setAttribute(Constants.SESSION_REGISTER_MESSAGE, Constants.MESSAGE_REGISTER_SUCCESS);
+			
+			// メール送信処理（初回公開時のみ）
+			String registerMessage = Constants.MESSAGE_REGISTER_SUCCESS;
+			if (isPublished && emailService != null) {
+				try {
+					SimpleDateFormat sdf = new SimpleDateFormat(Constants.DATE_FORMAT_DATETIME);
+					Date publishDate = sdf.parse(nowTime.replaceAll("/", "-"));
+					String emailError = emailService.sendContentPublishedNotification(title, url, publishDate);
+					if (emailError != null) {
+						registerMessage = Constants.MESSAGE_REGISTER_SUCCESS_WITH_EMAIL_ERROR + " " + emailError;
+					}
+				} catch (ParseException e) {
+					// 日時パースエラーは無視（メール送信のみ失敗）
+					e.printStackTrace();
+				} catch (Exception e) {
+					// その他のエラーも無視（メール送信のみ失敗）
+					e.printStackTrace();
+				}
+			}
+			session.setAttribute(Constants.SESSION_REGISTER_MESSAGE, registerMessage);
 		} catch (Exception e) {
 			e.printStackTrace();
 			session.setAttribute(Constants.SESSION_REGISTER_MESSAGE, Constants.MESSAGE_REGISTER_FAILED);
@@ -350,6 +378,7 @@ public class Content {
 			}
 			String nowTime = CommonProc.createNow();
 			mapper.update(id, nowTime, name, url, title, head, content, type, elementcolor, template, schedule_published, schedule_unpublished, published);
+			boolean isFirstPublish = false;
 			if (published.equals(Constants.FLAG_YES)) {
 				//過去日、現在日時、空だった場合に公開(未来日はバッチで公開)
 				if (publishParseResult == 1 || publishParseResult == 0 || schedule_published.equals(Constants.EMPTY_STRING)) {
@@ -358,10 +387,30 @@ public class Content {
 						mapper.updatePublic(id, nowTime, name, url, title, head, content, type, elementcolor, template, schedule_published, schedule_unpublished, published);
 					} else {
 						mapper.createPublic(Integer.valueOf(id), nowTime, nowTime, name, name, url, title, head, content, type, elementcolor, template, schedule_published, schedule_unpublished, published);
+						isFirstPublish = true; // 初回公開
 					}
 				}
 			}
-			session.setAttribute(Constants.SESSION_REGISTER_MESSAGE, Constants.MESSAGE_REGISTER_SUCCESS);
+			
+			// メール送信処理（初回公開時のみ）
+			String registerMessage = Constants.MESSAGE_REGISTER_SUCCESS;
+			if (isFirstPublish && emailService != null) {
+				try {
+					SimpleDateFormat sdf = new SimpleDateFormat(Constants.DATE_FORMAT_DATETIME);
+					Date publishDate = sdf.parse(nowTime.replaceAll("/", "-"));
+					String emailError = emailService.sendContentPublishedNotification(title, url, publishDate);
+					if (emailError != null) {
+						registerMessage = Constants.MESSAGE_REGISTER_SUCCESS_WITH_EMAIL_ERROR + " " + emailError;
+					}
+				} catch (ParseException e) {
+					// 日時パースエラーは無視（メール送信のみ失敗）
+					e.printStackTrace();
+				} catch (Exception e) {
+					// その他のエラーも無視（メール送信のみ失敗）
+					e.printStackTrace();
+				}
+			}
+			session.setAttribute(Constants.SESSION_REGISTER_MESSAGE, registerMessage);
 		} catch (Exception e) {
 			e.printStackTrace();
 			session.setAttribute(Constants.SESSION_REGISTER_MESSAGE, Constants.MESSAGE_REGISTER_FAILED);

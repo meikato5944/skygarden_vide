@@ -63,7 +63,17 @@
                             
                             <!-- title -->
                             <div class="mb-3">
-                                <label for="title" class="sky-form-label fw-bold ms-1">title</label>
+                                <div class="d-flex justify-content-between align-items-center mb-1">
+                                    <label for="title" class="sky-form-label fw-bold ms-1">title</label>
+                                    <div class="btn-group btn-group-sm" role="group" aria-label="AI generation" th:if="${aiGenerationVisible == '1'}">
+                                        <button type="button" class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#aiTitleModal" title="AI生成">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                                                <path d="M8 0c-.176 0-.35.01-.523.03C7.39.09 7.27.19 7.2.31L5.5 3.5 2.5 3.5c-.28 0-.5.22-.5.5s.22.5.5.5h.5v8.5c0 .28.22.5.5.5h9c.28 0 .5-.22.5-.5V4.5h.5c.28 0 .5-.22.5-.5s-.22-.5-.5-.5h-3L8.8.31c-.07-.12-.19-.22-.277-.28C8.35.01 8.176 0 8 0zm-.5 2h1v1h-1V2zm4.5 2v8H4V4h8z"/>
+                                            </svg>
+                                            AI生成
+                                        </button>
+                                    </div>
+                                </div>
                                 <input type="text" class="form-control sky-input" id="title" name="title" th:value="${title}" placeholder="Enter title" required />
                                 <div class="ms-2 invalid-feedback"></div>
                             </div>
@@ -112,6 +122,15 @@
                                                     <path d="M6.586 4.672A3 3 0 0 0 7.414 9.5l.775-.776a2 2 0 0 1-.896-3.346L9.12 3.55a2 2 0 1 1 2.83 2.83l-.793.792c.112.42.155.855.128 1.287l1.372-1.372a3 3 0 1 0-4.243-4.243L6.586 4.672z"/>
                                                 </svg>
                                                 リンク
+                                            </button>
+                                        </div>
+                                        <!-- AI生成ボタン（設定で表示/非表示を制御） -->
+                                        <div class="btn-group btn-group-sm" role="group" aria-label="AI generation" th:if="${aiGenerationVisible == '1'}">
+                                            <button type="button" class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#aiContentModal" title="AI生成">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                                                    <path d="M8 0c-.176 0-.35.01-.523.03C7.39.09 7.27.19 7.2.31L5.5 3.5 2.5 3.5c-.28 0-.5.22-.5.5s.22.5.5.5h.5v8.5c0 .28.22.5.5.5h9c.28 0 .5-.22.5-.5V4.5h.5c.28 0 .5-.22.5-.5s-.22-.5-.5-.5h-3L8.8.31c-.07-.12-.19-.22-.277-.28C8.35.01 8.176 0 8 0zm-.5 2h1v1h-1V2zm4.5 2v8H4V4h8z"/>
+                                                </svg>
+                                                AI生成
                                             </button>
                                         </div>
                                         <!-- コード/プレビュー切り替え -->
@@ -355,6 +374,62 @@
                 <div class="modal-footer d-flex justify-content-center align-items-center">
                     <button type="button" class="btn btn-secondary mx-3" data-bs-dismiss="modal">キャンセル</button>
                     <button type="button" class="btn btn-warning px-4 mx-3" id="linkInsertBtn" data-bs-dismiss="modal">挿入</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- AI Title Generation Modal -->
+    <div class="modal fade" id="aiTitleModal" tabindex="-1" aria-labelledby="aiTitleModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="aiTitleModalLabel">AIでタイトルを生成</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="aiTitleInput" class="form-label fw-bold">情報を入力してください</label>
+                        <textarea class="form-control" id="aiTitleInput" rows="4" placeholder="タイトル生成に必要な情報を入力してください"></textarea>
+                    </div>
+                    <div id="aiTitleError" class="alert alert-danger d-none" role="alert"></div>
+                    <div id="aiTitleLoading" class="text-center d-none">
+                        <div class="spinner-border text-warning" role="status">
+                            <span class="visually-hidden">生成中...</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer d-flex justify-content-center align-items-center">
+                    <button type="button" class="btn btn-secondary mx-3" data-bs-dismiss="modal">キャンセル</button>
+                    <button type="button" class="btn btn-warning px-4 mx-3" id="aiTitleGenerateBtn">生成</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- AI Content Generation Modal -->
+    <div class="modal fade" id="aiContentModal" tabindex="-1" aria-labelledby="aiContentModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="aiContentModalLabel">AIで本文を生成</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="aiContentInput" class="form-label fw-bold">情報を入力してください</label>
+                        <textarea class="form-control" id="aiContentInput" rows="4" placeholder="本文生成に必要な情報を入力してください"></textarea>
+                    </div>
+                    <div id="aiContentError" class="alert alert-danger d-none" role="alert"></div>
+                    <div id="aiContentLoading" class="text-center d-none">
+                        <div class="spinner-border text-warning" role="status">
+                            <span class="visually-hidden">生成中...</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer d-flex justify-content-center align-items-center">
+                    <button type="button" class="btn btn-secondary mx-3" data-bs-dismiss="modal">キャンセル</button>
+                    <button type="button" class="btn btn-warning px-4 mx-3" id="aiContentGenerateBtn">生成</button>
                 </div>
             </div>
         </div>
@@ -1022,6 +1097,156 @@
                         e.preventDefault();
                         searchContents();
                     }
+                });
+            }
+            
+            // AIタイトル生成
+            var aiTitleGenerateBtn = document.getElementById('aiTitleGenerateBtn');
+            if (aiTitleGenerateBtn) {
+                aiTitleGenerateBtn.addEventListener('click', function() {
+                    var userInput = document.getElementById('aiTitleInput').value;
+                    if (!userInput || userInput.trim() === '') {
+                        var errorDiv = document.getElementById('aiTitleError');
+                        errorDiv.textContent = '情報を入力してください。';
+                        errorDiv.classList.remove('d-none');
+                        return;
+                    }
+                    
+                    var loadingDiv = document.getElementById('aiTitleLoading');
+                    var errorDiv = document.getElementById('aiTitleError');
+                    var generateBtn = document.getElementById('aiTitleGenerateBtn');
+                    
+                    loadingDiv.classList.remove('d-none');
+                    errorDiv.classList.add('d-none');
+                    generateBtn.disabled = true;
+                    
+                    var formData = new FormData();
+                    formData.append('userInput', userInput);
+                    
+                    // タイムアウト用のAbortController
+                    var controller = new AbortController();
+                    var timeoutId = setTimeout(function() {
+                        controller.abort();
+                    }, 90000); // 90秒でタイムアウト
+                    
+                    fetch('/webadmin/api/generate-title', {
+                        method: 'POST',
+                        body: formData,
+                        signal: controller.signal
+                    })
+                    .then(function(response) {
+                        clearTimeout(timeoutId);
+                        if (!response.ok) {
+                            throw new Error('HTTPエラー: ' + response.status);
+                        }
+                        return response.json();
+                    })
+                    .then(function(data) {
+                        loadingDiv.classList.add('d-none');
+                        generateBtn.disabled = false;
+                        
+                        if (data.error) {
+                            errorDiv.textContent = data.error.message || 'タイトル生成に失敗しました。';
+                            errorDiv.classList.remove('d-none');
+                        } else if (data.title) {
+                            document.getElementById('title').value = data.title;
+                            var modal = bootstrap.Modal.getInstance(document.getElementById('aiTitleModal'));
+                            modal.hide();
+                            document.getElementById('aiTitleInput').value = '';
+                        } else {
+                            errorDiv.textContent = 'タイトル生成に失敗しました。レスポンス形式が正しくありません。';
+                            errorDiv.classList.remove('d-none');
+                        }
+                    })
+                    .catch(function(error) {
+                        clearTimeout(timeoutId);
+                        loadingDiv.classList.add('d-none');
+                        generateBtn.disabled = false;
+                        if (error.name === 'AbortError') {
+                            errorDiv.textContent = 'リクエストがタイムアウトしました（90秒）。時間がかかるモデルの場合は、もう一度お試しください。';
+                        } else {
+                            errorDiv.textContent = 'エラーが発生しました: ' + (error.message || '不明なエラー');
+                        }
+                        errorDiv.classList.remove('d-none');
+                    });
+                });
+            }
+            
+            // AI本文生成
+            var aiContentGenerateBtn = document.getElementById('aiContentGenerateBtn');
+            if (aiContentGenerateBtn) {
+                aiContentGenerateBtn.addEventListener('click', function() {
+                    var userInput = document.getElementById('aiContentInput').value;
+                    if (!userInput || userInput.trim() === '') {
+                        var errorDiv = document.getElementById('aiContentError');
+                        errorDiv.textContent = '情報を入力してください。';
+                        errorDiv.classList.remove('d-none');
+                        return;
+                    }
+                    
+                    var loadingDiv = document.getElementById('aiContentLoading');
+                    var errorDiv = document.getElementById('aiContentError');
+                    var generateBtn = document.getElementById('aiContentGenerateBtn');
+                    
+                    loadingDiv.classList.remove('d-none');
+                    errorDiv.classList.add('d-none');
+                    generateBtn.disabled = true;
+                    
+                    var formData = new FormData();
+                    formData.append('userInput', userInput);
+                    
+                    // タイムアウト用のAbortController
+                    var controller = new AbortController();
+                    var timeoutId = setTimeout(function() {
+                        controller.abort();
+                    }, 90000); // 90秒でタイムアウト
+                    
+                    fetch('/webadmin/api/generate-content', {
+                        method: 'POST',
+                        body: formData,
+                        signal: controller.signal
+                    })
+                    .then(function(response) {
+                        clearTimeout(timeoutId);
+                        if (!response.ok) {
+                            throw new Error('HTTPエラー: ' + response.status);
+                        }
+                        return response.json();
+                    })
+                    .then(function(data) {
+                        loadingDiv.classList.add('d-none');
+                        generateBtn.disabled = false;
+                        
+                        if (data.error) {
+                            errorDiv.textContent = data.error.message || '本文生成に失敗しました。';
+                            errorDiv.classList.remove('d-none');
+                        } else if (data.content) {
+                            var contentTextarea = document.getElementById('content');
+                            var currentContent = contentTextarea.value;
+                            if (currentContent && currentContent.trim() !== '') {
+                                contentTextarea.value = currentContent + '\n\n' + data.content;
+                            } else {
+                                contentTextarea.value = data.content;
+                            }
+                            var modal = bootstrap.Modal.getInstance(document.getElementById('aiContentModal'));
+                            modal.hide();
+                            document.getElementById('aiContentInput').value = '';
+                        } else {
+                            errorDiv.textContent = '本文生成に失敗しました。レスポンス形式が正しくありません。';
+                            errorDiv.classList.remove('d-none');
+                        }
+                    })
+                    .catch(function(error) {
+                        clearTimeout(timeoutId);
+                        loadingDiv.classList.add('d-none');
+                        generateBtn.disabled = false;
+                        if (error.name === 'AbortError') {
+                            errorDiv.textContent = 'リクエストがタイムアウトしました（90秒）。時間がかかるモデルの場合は、もう一度お試しください。';
+                        } else {
+                            errorDiv.textContent = 'エラーが発生しました: ' + (error.message || '不明なエラー');
+                        }
+                        errorDiv.classList.remove('d-none');
+                    });
                 });
             }
         });

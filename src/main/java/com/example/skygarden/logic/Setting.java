@@ -24,6 +24,7 @@ import jakarta.servlet.http.HttpSession;
  * 主な機能:
  * - 構成要素の色設定の更新
  * - 構成要素の色設定の取得（リスト形式）
+ * - OpenAI設定の更新・取得
  * 
  * 設定データの形式:
  * 色設定は configテーブルの "elements-color-value" という名前で保存されます。
@@ -52,7 +53,7 @@ public class Setting {
 
 	/**
 	 * 設定情報を更新する
-	 * 構成要素の色設定とデフォルト公開設定に対応
+	 * 構成要素の色設定、デフォルト公開設定、OpenAI設定に対応
 	 * 
 	 * @param request HTTPリクエスト
 	 * @param response HTTPレスポンス
@@ -69,6 +70,67 @@ public class Setting {
 			defaultPublishOn = Constants.FLAG_NO;
 		}
 		mapper.updateSetting(defaultPublishOn, Constants.CONFIG_DEFAULT_PUBLISH_ON);
+		
+		// OpenAI設定を更新
+		String openaiApiKey = request.getParameter(Constants.CONFIG_OPENAI_API_KEY);
+		if (openaiApiKey != null) {
+			mapper.updateSetting(openaiApiKey, Constants.CONFIG_OPENAI_API_KEY);
+		} else {
+			// パラメータが送信されなかった場合は空文字列として保存
+			mapper.updateSetting(Constants.EMPTY_STRING, Constants.CONFIG_OPENAI_API_KEY);
+		}
+		
+		String openaiModel = request.getParameter(Constants.CONFIG_OPENAI_MODEL);
+		if (openaiModel != null && !openaiModel.isEmpty()) {
+			mapper.updateSetting(openaiModel, Constants.CONFIG_OPENAI_MODEL);
+		} else {
+			// デフォルト値を設定（初回保存時または空の場合）
+			mapper.updateSetting("gpt-3.5-turbo", Constants.CONFIG_OPENAI_MODEL);
+		}
+		
+		String openaiPromptTitle = request.getParameter(Constants.CONFIG_OPENAI_PROMPT_TITLE);
+		if (openaiPromptTitle != null) {
+			mapper.updateSetting(openaiPromptTitle, Constants.CONFIG_OPENAI_PROMPT_TITLE);
+		}
+		
+		String openaiPromptContent = request.getParameter(Constants.CONFIG_OPENAI_PROMPT_CONTENT);
+		if (openaiPromptContent != null) {
+			mapper.updateSetting(openaiPromptContent, Constants.CONFIG_OPENAI_PROMPT_CONTENT);
+		}
+		
+		// AI生成ボタンの表示/非表示設定を更新
+		String aiGenerationVisible = request.getParameter(Constants.CONFIG_AI_GENERATION_VISIBLE);
+		if (aiGenerationVisible == null) {
+			aiGenerationVisible = Constants.FLAG_NO;
+		}
+		mapper.updateSetting(aiGenerationVisible, Constants.CONFIG_AI_GENERATION_VISIBLE);
+		
+		// メール設定を更新
+		String emailEnabled = request.getParameter(Constants.CONFIG_EMAIL_ENABLED);
+		if (emailEnabled == null) {
+			emailEnabled = Constants.FLAG_NO;
+		}
+		mapper.updateSetting(emailEnabled, Constants.CONFIG_EMAIL_ENABLED);
+		
+		String emailTo = request.getParameter(Constants.CONFIG_EMAIL_TO);
+		if (emailTo != null) {
+			mapper.updateSetting(emailTo, Constants.CONFIG_EMAIL_TO);
+		}
+		
+		String emailFrom = request.getParameter(Constants.CONFIG_EMAIL_FROM);
+		if (emailFrom != null) {
+			mapper.updateSetting(emailFrom, Constants.CONFIG_EMAIL_FROM);
+		}
+		
+		String emailBodyTemplate = request.getParameter(Constants.CONFIG_EMAIL_BODY_TEMPLATE);
+		if (emailBodyTemplate != null) {
+			mapper.updateSetting(emailBodyTemplate, Constants.CONFIG_EMAIL_BODY_TEMPLATE);
+		}
+		
+		String emailBaseUrl = request.getParameter(Constants.CONFIG_EMAIL_BASE_URL);
+		if (emailBaseUrl != null) {
+			mapper.updateSetting(emailBaseUrl, Constants.CONFIG_EMAIL_BASE_URL);
+		}
 		
 		session.setAttribute(Constants.SESSION_REGISTER_MESSAGE, Constants.MESSAGE_SETTING_REGISTER_SUCCESS);
 		try {
@@ -113,5 +175,50 @@ public class Setting {
 	public String getDefaultPublishOn() {
 		String result = mapper.getSettingByName(Constants.CONFIG_DEFAULT_PUBLISH_ON);
 		return result != null ? result : Constants.FLAG_NO;
+	}
+	
+	/**
+	 * OpenAI設定を取得する
+	 * 
+	 * @param settingName 設定名（Constants.CONFIG_OPENAI_*）
+	 * @return 設定値（存在しない場合は空文字列）
+	 */
+	public String getOpenAISetting(String settingName) {
+		String result = mapper.getSettingByName(settingName);
+		return result != null ? result : Constants.EMPTY_STRING;
+	}
+	
+	/**
+	 * AI生成ボタンの表示/非表示設定を取得する
+	 * 
+	 * @return "1" = 表示、"0" or null = 非表示
+	 */
+	public String getAIGenerationVisible() {
+		String result = mapper.getSettingByName(Constants.CONFIG_AI_GENERATION_VISIBLE);
+		return result != null ? result : Constants.FLAG_NO;
+	}
+	
+	/**
+	 * メール設定を取得する
+	 * 
+	 * @param settingName 設定名（Constants.CONFIG_EMAIL_*）
+	 * @return 設定値（存在しない場合は空文字列）
+	 */
+	public String getEmailSetting(String settingName) {
+		String result = mapper.getSettingByName(settingName);
+		return result != null ? result : Constants.EMPTY_STRING;
+	}
+	
+	/**
+	 * デフォルトのメール本文テンプレートを取得する
+	 * 
+	 * @return デフォルトメール本文
+	 */
+	public String getDefaultEmailBody() {
+		return "新しいコンテンツが公開されました。\n\n" +
+			"タイトル: ###title###\n" +
+			"URL: ###url###\n" +
+			"公開日時: ###publish_date###\n\n" +
+			"ご確認ください。";
 	}
 }

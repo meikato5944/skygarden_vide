@@ -122,7 +122,8 @@
 	</select>
 
 	<update id="updateSetting">
-		UPDATE config set value = #{value} WHERE name = #{name}
+		INSERT INTO config (name, value) VALUES (#{name}, #{value})
+		ON DUPLICATE KEY UPDATE value = #{value}
 	</update>
 
 	<select id="getElementColor" resultType="String">

@@ -1,5 +1,8 @@
 package com.example.skygarden.logic;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
@@ -8,6 +11,7 @@ import org.springframework.stereotype.Service;
 
 import com.example.skygarden.constants.Constants;
 import com.example.skygarden.mapper.ContentMapper;
+import com.example.skygarden.service.EmailService;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -46,6 +50,10 @@ public class Batch {
 	/** コンテンツ管理用のMyBatis Mapper */
 	@Autowired
 	private ContentMapper mapper;
+	
+	/** メール送信サービス */
+	@Autowired(required = false)
+	private EmailService emailService;
 
 	/**
 	 * スケジュール公開のバッチ処理を実行する
@@ -71,9 +79,28 @@ public class Batch {
 			String schedule_unpublished = result.get("schedule_unpublished");
 			String publishflg_keep = result.get("publishflg_keep");
 			try {
-				if (publicResult == null || publicResult.isEmpty() || publicResult.get("id") == null || publicResult.get("id").equals(Constants.EMPTY_STRING)) {
+				boolean isFirstPublish = (publicResult == null || publicResult.isEmpty() || publicResult.get("id") == null || publicResult.get("id").equals(Constants.EMPTY_STRING));
+				if (isFirstPublish) {
 					String nowTime = CommonProc.createNow();
 					mapper.createPublic(Integer.valueOf(id), nowTime, nowTime, name, name, url, title, head, contentStr, type, elementcolor, template, schedule_published, schedule_unpublished, publishflg_keep);
+					
+					// メール送信処理（初回公開時のみ）
+					if (emailService != null) {
+						try {
+							SimpleDateFormat sdf = new SimpleDateFormat(Constants.DATE_FORMAT_DATETIME);
+							Date publishDate = sdf.parse(nowTime.replaceAll("/", "-"));
+							String emailError = emailService.sendContentPublishedNotification(title, url, publishDate);
+							if (emailError != null) {
+								log.warn("メール送信に失敗しました: {}", emailError);
+							} else {
+								log.info("メール送信成功: タイトル={}, URL={}", title, url);
+							}
+						} catch (ParseException e) {
+							log.error("日時パースエラー: {}", e.getMessage());
+						} catch (Exception e) {
+							log.error("メール送信中にエラーが発生しました: {}", e.getMessage(), e);
+						}
+					}
 				} else {
 					String nowTime = CommonProc.createNow();
 					mapper.updatePublic(id, nowTime, name, url, title, head, contentStr, type, elementcolor, template, schedule_published, schedule_unpublished, publishflg_keep);

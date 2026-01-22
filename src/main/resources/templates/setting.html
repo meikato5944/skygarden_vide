@@ -294,6 +294,128 @@
                                     <p class="text-muted small mt-2 mb-0">オンにすると、コンテンツ入稿画面を開いた際にデフォルトでpublishがオンになります。</p>
                                 </div>
                                 
+                                <div class="setting-section">
+                                    <h5 class="setting-section-title">生成AI設定（OpenAI）</h5>
+                                    <div class="mb-3">
+                                        <div class="d-flex align-items-center">
+                                            <div class="form-check form-switch">
+                                                <input class="form-check-input sky-input-switch" type="checkbox" role="switch" 
+                                                       id="ai-generation-visible" name="ai-generation-visible" value="1" 
+                                                       th:checked="${aiGenerationVisible == '1'}" />
+                                                <label class="form-check-label ms-2" for="ai-generation-visible">
+                                                    AI生成ボタンを表示する
+                                                </label>
+                                            </div>
+                                        </div>
+                                        <p class="text-muted small mt-2 mb-0">オンにすると、コンテンツ編集画面にAI生成ボタンが表示されます。</p>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="openai-api-key" class="form-label">APIキー</label>
+                                        <input type="text" class="form-control" id="openai-api-key" name="openai-api-key" 
+                                               th:value="${openaiApiKey}" placeholder="sk-..." />
+                                        <p class="text-muted small mt-1 mb-0">OpenAI APIキーを入力してください。</p>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="openai-model" class="form-label">モデル</label>
+                                        <select class="form-select" id="openai-model" name="openai-model">
+                                            <!-- GPT-5シリーズ -->
+                                            <optgroup label="GPT-5シリーズ">
+                                                <option value="gpt-5.2" th:selected="${openaiModel == 'gpt-5.2'}">gpt-5.2</option>
+                                                <option value="gpt-5.2-pro" th:selected="${openaiModel == 'gpt-5.2-pro'}">gpt-5.2-pro</option>
+                                                <option value="gpt-5-mini" th:selected="${openaiModel == 'gpt-5-mini'}">gpt-5-mini</option>
+                                                <option value="gpt-5-nano" th:selected="${openaiModel == 'gpt-5-nano'}">gpt-5-nano</option>
+                                            </optgroup>
+                                            <!-- GPT-4シリーズ -->
+                                            <optgroup label="GPT-4シリーズ">
+                                                <option value="gpt-4.1" th:selected="${openaiModel == 'gpt-4.1'}">gpt-4.1</option>
+                                                <option value="gpt-4.1-mini" th:selected="${openaiModel == 'gpt-4.1-mini'}">gpt-4.1-mini</option>
+                                                <option value="gpt-4o" th:selected="${openaiModel == 'gpt-4o'}">gpt-4o</option>
+                                                <option value="gpt-4o-mini" th:selected="${openaiModel == 'gpt-4o-mini'}">gpt-4o-mini</option>
+                                                <option value="gpt-4-turbo" th:selected="${openaiModel == 'gpt-4-turbo'}">gpt-4-turbo</option>
+                                                <option value="gpt-4" th:selected="${openaiModel == 'gpt-4'}">gpt-4</option>
+                                            </optgroup>
+                                            <!-- Reasoning Models (o-series) -->
+                                            <optgroup label="Reasoning Models (o-series)">
+                                                <option value="o3" th:selected="${openaiModel == 'o3'}">o3</option>
+                                                <option value="o3-pro" th:selected="${openaiModel == 'o3-pro'}">o3-pro</option>
+                                                <option value="o4-mini" th:selected="${openaiModel == 'o4-mini'}">o4-mini</option>
+                                                <option value="o4-mini-high" th:selected="${openaiModel == 'o4-mini-high'}">o4-mini-high</option>
+                                                <option value="o1-preview" th:selected="${openaiModel == 'o1-preview'}">o1-preview</option>
+                                                <option value="o1-mini" th:selected="${openaiModel == 'o1-mini'}">o1-mini</option>
+                                            </optgroup>
+                                            <!-- GPT-3.5シリーズ -->
+                                            <optgroup label="GPT-3.5シリーズ">
+                                                <option value="gpt-3.5-turbo" th:selected="${openaiModel == 'gpt-3.5-turbo'}">gpt-3.5-turbo</option>
+                                            </optgroup>
+                                        </select>
+                                        <p class="text-muted small mt-1 mb-0">使用するOpenAIモデルを選択してください。</p>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="openai-prompt-title" class="form-label">タイトル生成プロンプト</label>
+                                        <textarea class="form-control" id="openai-prompt-title" name="openai-prompt-title" rows="3" 
+                                                  th:text="${openaiPromptTitle}" 
+                                                  placeholder="以下の情報を基に、適切なWebページのタイトルを1つ提案してください。&#10;情報: {userInput}&#10;タイトルは簡潔で、検索エンジン最適化を考慮したものにしてください。"></textarea>
+                                        <p class="text-muted small mt-1 mb-0">{userInput}はユーザー入力に置き換えられます。</p>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="openai-prompt-content" class="form-label">本文生成プロンプト</label>
+                                        <textarea class="form-control" id="openai-prompt-content" name="openai-prompt-content" rows="3" 
+                                                  th:text="${openaiPromptContent}" 
+                                                  placeholder="以下の情報を基に、Webページの本文（HTML形式）を生成してください。&#10;情報: {userInput}&#10;適切なHTMLタグを使用し、読みやすい形式で作成してください。"></textarea>
+                                        <p class="text-muted small mt-1 mb-0">{userInput}はユーザー入力に置き換えられます。</p>
+                                    </div>
+                                </div>
+                                
+                                <!-- メール設定 -->
+                                <div class="setting-section">
+                                    <h5 class="setting-section-title">メール通知設定</h5>
+                                    <div class="mb-3">
+                                        <div class="d-flex align-items-center">
+                                            <div class="form-check form-switch">
+                                                <input class="form-check-input sky-input-switch" type="checkbox" role="switch" 
+                                                       id="email-enabled" name="email-enabled" value="1" 
+                                                       th:checked="${emailEnabled == '1'}" />
+                                                <label class="form-check-label ms-2" for="email-enabled">
+                                                    メール通知を有効にする
+                                                </label>
+                                            </div>
+                                        </div>
+                                        <p class="text-muted small mt-2 mb-0">オンにすると、コンテンツが公開された際にメール通知が送信されます。</p>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="email-to" class="form-label">送信先メールアドレス</label>
+                                        <input type="text" class="form-control" id="email-to" name="email-to" 
+                                               th:value="${emailTo}" placeholder="example@example.com, example2@example.com" />
+                                        <p class="text-muted small mt-1 mb-0">カンマ区切りで複数のメールアドレスを指定できます。</p>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="email-from" class="form-label">送信元メールアドレス</label>
+                                        <input type="text" class="form-control" id="email-from" name="email-from" 
+                                               th:value="${emailFrom}" placeholder="noreply@example.com" />
+                                        <p class="text-muted small mt-1 mb-0">メールの送信元アドレスを入力してください。</p>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="email-base-url" class="form-label">ベースURL</label>
+                                        <input type="text" class="form-control" id="email-base-url" name="email-base-url" 
+                                               th:value="${emailBaseUrl}" placeholder="http://example.com" />
+                                        <p class="text-muted small mt-1 mb-0">メール本文に含まれるコンテンツURLのベースURLを入力してください。</p>
+                                    </div>
+                                    <div class="mb-3">
+                                        <div class="d-flex justify-content-between align-items-center mb-2">
+                                            <label for="email-body-template" class="form-label mb-0">メール本文テンプレート</label>
+                                            <button type="button" class="btn btn-sm btn-outline-secondary" id="reset-email-body-btn">
+                                                デフォルトに戻す
+                                            </button>
+                                        </div>
+                                        <textarea class="form-control" id="email-body-template" name="email-body-template" rows="8" 
+                                                  th:text="${emailBodyTemplate}" 
+                                                  placeholder="新しいコンテンツが公開されました。&#10;&#10;タイトル: ###title###&#10;URL: ###url###&#10;公開日時: ###publish_date###&#10;&#10;ご確認ください。"></textarea>
+                                        <p class="text-muted small mt-1 mb-0">
+                                            ###title###、###url###、###publish_date###が実際の値に置き換えられます。
+                                        </p>
+                                    </div>
+                                </div>
+                                
                                 <button type="button" class="btn btn-warning fw-bold sky-bg-2 sky-submit" data-bs-toggle="modal" data-bs-target="#submitModal">
                                     登録
                                 </button>
@@ -856,6 +978,16 @@
                 }
             });
         }
+        
+        // メール本文テンプレートをデフォルトに戻す
+        document.getElementById('reset-email-body-btn').addEventListener('click', function() {
+            var defaultTemplate = '新しいコンテンツが公開されました。\n\n' +
+                'タイトル: ###title###\n' +
+                'URL: ###url###\n' +
+                '公開日時: ###publish_date###\n\n' +
+                'ご確認ください。';
+            document.getElementById('email-body-template').value = defaultTemplate;
+        });
     </script>
 </body>
 </html>

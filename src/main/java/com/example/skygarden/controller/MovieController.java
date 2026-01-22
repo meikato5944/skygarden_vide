@@ -1,6 +1,9 @@
 package com.example.skygarden.controller;
 
 import java.io.IOException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,6 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.example.skygarden.constants.Constants;
 import com.example.skygarden.logic.CommonProc;
 import com.example.skygarden.mapper.ContentMapper;
+import com.example.skygarden.service.EmailService;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -57,6 +61,10 @@ public class MovieController {
 	/** コンテンツ管理用のMyBatis Mapper */
 	@Autowired
 	private ContentMapper mapper;
+	
+	/** メール送信サービス */
+	@Autowired(required = false)
+	private EmailService emailService;
 	
 	/**
 	 * 動画URLを登録し、コンテンツとして登録する
@@ -111,6 +119,7 @@ public class MovieController {
 			
 			// データベースへの登録/更新
 			// urlフィールドにYouTube URL、contentフィールドにビデオID、headフィールドにサイズ情報を保存
+			boolean isFirstPublish = false;
 			if (id.isEmpty()) {
 				// 新規作成
 				int newId = mapper.create(
@@ -127,6 +136,7 @@ public class MovieController {
 						Constants.CONTENT_TYPE_MOVIE, "", "",
 						schedule_published, schedule_unpublished, published
 					);
+					isFirstPublish = true;
 				}
 				log.info("Movie registered: id={}, videoId={}, size={}", newId, videoId, sizeInfo);
 			} else {
@@ -163,12 +173,29 @@ public class MovieController {
 							Constants.CONTENT_TYPE_MOVIE, "", "",
 							schedule_published, schedule_unpublished, published
 						);
+						isFirstPublish = true;
 					}
 				}
 				log.info("Movie updated: id={}, videoId={}, size={}", id, content, sizeInfo);
 			}
 			
-			session.setAttribute(Constants.SESSION_REGISTER_MESSAGE, Constants.MESSAGE_REGISTER_SUCCESS);
+			// メール送信処理（初回公開時のみ）
+			String registerMessage = Constants.MESSAGE_REGISTER_SUCCESS;
+			if (isFirstPublish && emailService != null) {
+				try {
+					SimpleDateFormat sdf = new SimpleDateFormat(Constants.DATE_FORMAT_DATETIME);
+					Date publishDate = sdf.parse(nowTime.replaceAll("/", "-"));
+					String emailError = emailService.sendContentPublishedNotification(title, youtubeUrl, publishDate);
+					if (emailError != null) {
+						registerMessage = Constants.MESSAGE_REGISTER_SUCCESS_WITH_EMAIL_ERROR + " " + emailError;
+					}
+				} catch (ParseException e) {
+					log.error("日時パースエラー: {}", e.getMessage());
+				} catch (Exception e) {
+					log.error("メール送信中にエラーが発生しました: {}", e.getMessage(), e);
+				}
+			}
+			session.setAttribute(Constants.SESSION_REGISTER_MESSAGE, registerMessage);
 		} catch (Exception e) {
 			log.error("Movie registration error", e);
 			session.setAttribute(Constants.SESSION_REGISTER_MESSAGE, Constants.MESSAGE_REGISTER_FAILED);

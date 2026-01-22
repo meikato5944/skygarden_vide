@@ -185,11 +185,13 @@ public class HomeController {
             }
             
             // 共通属性を設定
+            String aiGenerationVisible = setting.getAIGenerationVisible();
             model.addAttribute("id", id);
             model.addAttribute("title", title);
             model.addAttribute("head", head);
             model.addAttribute("contentStr", contentStr);
             model.addAttribute("url", url);
+            model.addAttribute("aiGenerationVisible", aiGenerationVisible);
             
             // モードに応じて処理を分岐
             if (mode.equals(Constants.CONTENT_TYPE_TEMPLATE)) {
@@ -525,12 +527,45 @@ public class HomeController {
         try {
             List<HashMap<String, String>> colorElements = setting.elementsColorList();
             String defaultPublishOn = setting.getDefaultPublishOn();
+            String openaiApiKey = setting.getOpenAISetting(Constants.CONFIG_OPENAI_API_KEY);
+            String openaiModel = setting.getOpenAISetting(Constants.CONFIG_OPENAI_MODEL);
+            String openaiPromptTitle = setting.getOpenAISetting(Constants.CONFIG_OPENAI_PROMPT_TITLE);
+            String openaiPromptContent = setting.getOpenAISetting(Constants.CONFIG_OPENAI_PROMPT_CONTENT);
+            String aiGenerationVisible = setting.getAIGenerationVisible();
+            String emailEnabled = setting.getEmailSetting(Constants.CONFIG_EMAIL_ENABLED);
+            String emailTo = setting.getEmailSetting(Constants.CONFIG_EMAIL_TO);
+            String emailFrom = setting.getEmailSetting(Constants.CONFIG_EMAIL_FROM);
+            String emailBodyTemplate = setting.getEmailSetting(Constants.CONFIG_EMAIL_BODY_TEMPLATE);
+            String emailBaseUrl = setting.getEmailSetting(Constants.CONFIG_EMAIL_BASE_URL);
+            if (emailBodyTemplate == null || emailBodyTemplate.trim().isEmpty()) {
+                emailBodyTemplate = setting.getDefaultEmailBody();
+            }
             model.addAttribute("colorElements", colorElements != null ? colorElements : new java.util.ArrayList<>());
             model.addAttribute("defaultPublishOn", defaultPublishOn);
+            model.addAttribute("openaiApiKey", openaiApiKey != null ? openaiApiKey : "");
+            model.addAttribute("openaiModel", openaiModel != null && !openaiModel.isEmpty() ? openaiModel : "gpt-3.5-turbo");
+            model.addAttribute("openaiPromptTitle", openaiPromptTitle != null ? openaiPromptTitle : "");
+            model.addAttribute("openaiPromptContent", openaiPromptContent != null ? openaiPromptContent : "");
+            model.addAttribute("aiGenerationVisible", aiGenerationVisible);
+            model.addAttribute("emailEnabled", emailEnabled != null ? emailEnabled : Constants.FLAG_NO);
+            model.addAttribute("emailTo", emailTo != null ? emailTo : "");
+            model.addAttribute("emailFrom", emailFrom != null ? emailFrom : "");
+            model.addAttribute("emailBodyTemplate", emailBodyTemplate != null ? emailBodyTemplate : "");
+            model.addAttribute("emailBaseUrl", emailBaseUrl != null ? emailBaseUrl : "");
         } catch (Exception e) {
             e.printStackTrace();
             model.addAttribute("colorElements", new java.util.ArrayList<>());
             model.addAttribute("defaultPublishOn", Constants.FLAG_NO);
+            model.addAttribute("openaiApiKey", "");
+            model.addAttribute("openaiModel", "gpt-3.5-turbo");
+            model.addAttribute("openaiPromptTitle", "");
+            model.addAttribute("openaiPromptContent", "");
+            model.addAttribute("aiGenerationVisible", Constants.FLAG_NO);
+            model.addAttribute("emailEnabled", Constants.FLAG_NO);
+            model.addAttribute("emailTo", "");
+            model.addAttribute("emailFrom", "");
+            model.addAttribute("emailBodyTemplate", setting.getDefaultEmailBody());
+            model.addAttribute("emailBaseUrl", "");
         }
         return "setting";
     }

@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -18,6 +19,7 @@ import com.example.skygarden.bean.ListBean;
 import com.example.skygarden.constants.Constants;
 import com.example.skygarden.logic.Content;
 import com.example.skygarden.logic.Setting;
+import com.example.skygarden.service.OpenAIService;
 import com.example.skygarden.util.ScreenNameConverter;
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -37,9 +39,11 @@ import jakarta.servlet.http.HttpSession;
  * - テンプレート・構成要素の選択オプション取得
  * - URL重複チェック
  * - プレビュー変換
+ * - AI生成機能（タイトル・本文生成）
  * 
  * @see Content コンテンツ管理のビジネスロジック
  * @see Setting 設定管理のビジネスロジック
+ * @see OpenAIService OpenAI API呼び出しサービス
  */
 @RestController
 @RequestMapping(Constants.PATH_WEBADMIN)
@@ -52,6 +56,10 @@ public class ContentController {
 	/** 設定管理のビジネスロジック */
 	@Autowired
 	private Setting setting;
+	
+	/** OpenAI API呼び出しサービス */
+	@Autowired
+	private OpenAIService openAIService;
 
 	/**
 	 * コンテンツの作成または更新を行う
@@ -427,5 +435,45 @@ public class ContentController {
 		bean.setResults(results);
 		bean.setPagerOutput(pagerOutput);
 		return bean;
+	}
+	
+	/**
+	 * タイトル生成API
+	 * OpenAI APIを使用してタイトルを生成します
+	 * 
+	 * @param userInput ユーザーが入力した情報（プロンプトの{userInput}に置き換えられる）
+	 * @return 生成結果を含むMap（"title"キーに生成されたタイトル、または"error"キーにエラー情報）
+	 */
+	@PostMapping(Constants.API_GENERATE_TITLE)
+	@ResponseBody
+	public Map<String, Object> generateTitle(@RequestParam(defaultValue = Constants.EMPTY_STRING) String userInput) {
+		try {
+			return openAIService.generateTitle(userInput);
+		} catch (Exception e) {
+			e.printStackTrace();
+			Map<String, Object> error = new HashMap<>();
+			error.put("error", Map.of("message", "タイトル生成中にエラーが発生しました: " + e.getMessage()));
+			return error;
+		}
+	}
+	
+	/**
+	 * 本文生成API
+	 * OpenAI APIを使用して本文を生成します
+	 * 
+	 * @param userInput ユーザーが入力した情報（プロンプトの{userInput}に置き換えられる）
+	 * @return 生成結果を含むMap（"content"キーに生成された本文、または"error"キーにエラー情報）
+	 */
+	@PostMapping(Constants.API_GENERATE_CONTENT)
+	@ResponseBody
+	public Map<String, Object> generateContent(@RequestParam(defaultValue = Constants.EMPTY_STRING) String userInput) {
+		try {
+			return openAIService.generateContent(userInput);
+		} catch (Exception e) {
+			e.printStackTrace();
+			Map<String, Object> error = new HashMap<>();
+			error.put("error", Map.of("message", "本文生成中にエラーが発生しました: " + e.getMessage()));
+			return error;
+		}
 	}
 }

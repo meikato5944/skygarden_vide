@@ -5,6 +5,9 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.UUID;
 
@@ -20,6 +23,7 @@ import com.example.skygarden.config.AppProperties;
 import com.example.skygarden.constants.Constants;
 import com.example.skygarden.logic.CommonProc;
 import com.example.skygarden.mapper.ContentMapper;
+import com.example.skygarden.service.EmailService;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -68,6 +72,10 @@ public class FileController {
 	/** アプリケーション設定プロパティ */
 	@Autowired
 	private AppProperties appProperties;
+	
+	/** メール送信サービス */
+	@Autowired(required = false)
+	private EmailService emailService;
 	
 	/**
 	 * ファイルをアップロードし、コンテンツとして登録する
@@ -147,6 +155,7 @@ public class FileController {
 			
 			// データベースへの登録/更新
 			// headフィールドに元のファイル名を保存（ダウンロード時のファイル名として使用）
+			boolean isFirstPublish = false;
 			if (id.isEmpty()) {
 				// 新規作成
 				int newId = mapper.create(
@@ -163,6 +172,7 @@ public class FileController {
 						Constants.CONTENT_TYPE_FILE, "", "",
 						schedule_published, schedule_unpublished, published
 					);
+					isFirstPublish = true;
 				}
 			} else {
 				// 更新
@@ -200,11 +210,28 @@ public class FileController {
 							Constants.CONTENT_TYPE_FILE, "", "",
 							schedule_published, schedule_unpublished, published
 						);
+						isFirstPublish = true;
 					}
 				}
 			}
 			
-			session.setAttribute(Constants.SESSION_REGISTER_MESSAGE, Constants.MESSAGE_REGISTER_SUCCESS);
+			// メール送信処理（初回公開時のみ）
+			String registerMessage = Constants.MESSAGE_REGISTER_SUCCESS;
+			if (isFirstPublish && emailService != null) {
+				try {
+					SimpleDateFormat sdf = new SimpleDateFormat(Constants.DATE_FORMAT_DATETIME);
+					Date publishDate = sdf.parse(nowTime.replaceAll("/", "-"));
+					String emailError = emailService.sendContentPublishedNotification(title, url, publishDate);
+					if (emailError != null) {
+						registerMessage = Constants.MESSAGE_REGISTER_SUCCESS_WITH_EMAIL_ERROR + " " + emailError;
+					}
+				} catch (ParseException e) {
+					log.error("日時パースエラー: {}", e.getMessage());
+				} catch (Exception e) {
+					log.error("メール送信中にエラーが発生しました: {}", e.getMessage(), e);
+				}
+			}
+			session.setAttribute(Constants.SESSION_REGISTER_MESSAGE, registerMessage);
 		} catch (Exception e) {
 			log.error("File upload error", e);
 			session.setAttribute(Constants.SESSION_REGISTER_MESSAGE, Constants.MESSAGE_REGISTER_FAILED);

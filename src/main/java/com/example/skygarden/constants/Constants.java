@@ -91,6 +91,8 @@ public final class Constants {
 	public static final String API_GET_ELEMENT = "/getelement";
 	public static final String API_PREVIEW = "/preview";
 	public static final String API_URL_MATCHES = "/urlmatches";
+	public static final String API_GENERATE_TITLE = "/api/generate-title";
+	public static final String API_GENERATE_CONTENT = "/api/generate-content";
 	
 	// ============================================
 	// テーブル名
@@ -105,6 +107,16 @@ public final class Constants {
 	// ============================================
 	public static final String CONFIG_ELEMENTS_COLOR_VALUE = "elements-color-value";
 	public static final String CONFIG_DEFAULT_PUBLISH_ON = "default-publish-on";
+	public static final String CONFIG_OPENAI_API_KEY = "openai-api-key";
+	public static final String CONFIG_OPENAI_MODEL = "openai-model";
+	public static final String CONFIG_OPENAI_PROMPT_TITLE = "openai-prompt-title";
+	public static final String CONFIG_OPENAI_PROMPT_CONTENT = "openai-prompt-content";
+	public static final String CONFIG_AI_GENERATION_VISIBLE = "ai-generation-visible";
+	public static final String CONFIG_EMAIL_ENABLED = "email-enabled";
+	public static final String CONFIG_EMAIL_TO = "email-to";
+	public static final String CONFIG_EMAIL_FROM = "email-from";
+	public static final String CONFIG_EMAIL_BODY_TEMPLATE = "email-body-template";
+	public static final String CONFIG_EMAIL_BASE_URL = "email-base-url";
 	
 	// ============================================
 	// 日時フォーマット
@@ -139,9 +151,15 @@ public final class Constants {
 	public static final String ERROR_PASSWORD_INCORRECT = "パスワードが正しくありません";
 	public static final String MESSAGE_REGISTER_SUCCESS = "登録しました。";
 	public static final String MESSAGE_REGISTER_FAILED = "登録に失敗しました。";
+	public static final String MESSAGE_REGISTER_SUCCESS_WITH_EMAIL_ERROR = "登録しました。（メール送信に失敗しました）";
 	public static final String MESSAGE_SETTING_REGISTER_SUCCESS = "設定を登録しました。";
 	public static final String MESSAGE_DELETE_SUCCESS = "削除しました。";
 	public static final String MESSAGE_DELETE_FAILED = "削除に失敗しました。";
+	public static final String ERROR_EMAIL_POSTFIX_NOT_CONFIGURED = "メール送信に失敗しました：postfixが設定されていません。";
+	public static final String ERROR_EMAIL_COMMUNICATION = "メール送信に失敗しました：通信エラーが発生しました。";
+	public static final String ERROR_EMAIL_INVALID_ADDRESS = "メール送信に失敗しました：メールアドレスの形式が正しくありません。";
+	public static final String ERROR_EMAIL_MISSING_RECIPIENT = "メール送信に失敗しました：送信先メールアドレスが設定されていません。";
+	public static final String ERROR_EMAIL_SEND_FAILED = "メール送信に失敗しました：予期しないエラーが発生しました。";
 	
 	// ============================================
 	// ソートオプション
