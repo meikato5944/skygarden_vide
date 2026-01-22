@@ -387,4 +387,45 @@ public class ContentController {
 	public List<HashMap<String, String>> getMovies() {
 		return content.getContentListByType(Constants.CONTENT_TYPE_MOVIE);
 	}
+	
+	/**
+	 * コンテンツ一覧を取得する（リンク挿入用）
+	 * 検索・フィルタ・ページネーションに対応
+	 * 
+	 * @param type コンテンツタイプ（フィルタリング用、空文字列はすべて）
+	 * @param keyword 検索キーワード（オプション）
+	 * @param sort ソート順（デフォルト: updated desc）
+	 * @param page ページ番号（デフォルト: 1）
+	 * @return コンテンツ一覧情報を含むListBean
+	 */
+	@GetMapping("/api/contents")
+	@ResponseBody
+	public ListBean getContentsForLink(@RequestParam(defaultValue = Constants.EMPTY_STRING) String type,
+			@RequestParam(defaultValue = Constants.EMPTY_STRING) String keyword,
+			@RequestParam(defaultValue = "updated desc") String sort,
+			@RequestParam(defaultValue = "1") String page) {
+		ListBean bean = new ListBean();
+		int thisPage = 1;
+		try {
+			thisPage = Integer.valueOf(page);
+		} catch (NumberFormatException e) {
+			thisPage = 1;
+		}
+		
+		List<HashMap<String, String>> results;
+		String pagerOutput;
+		
+		// キーワードが指定されている場合は検索、そうでない場合は通常の一覧取得
+		if (keyword != null && !keyword.trim().isEmpty()) {
+			results = content.searchList(sort, thisPage, type, keyword);
+			pagerOutput = content.getSearchPager(thisPage, type, sort, keyword);
+		} else {
+			results = content.getList(sort, thisPage, type);
+			pagerOutput = content.getPager(thisPage, type, sort);
+		}
+		
+		bean.setResults(results);
+		bean.setPagerOutput(pagerOutput);
+		return bean;
+	}
 }

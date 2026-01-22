@@ -106,6 +106,13 @@
                                                 </svg>
                                                 改行
                                             </button>
+                                            <button type="button" class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#linkInsertModal" title="リンク挿入">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                                                    <path d="M4.715 6.542 3.343 7.914a3 3 0 1 0 4.243 4.243l1.828-1.829A3 3 0 0 0 8.586 5.5L8 6.086a1.002 1.002 0 0 0-.154.199 2 2 0 0 1 .861 3.337L6.88 11.45a2 2 0 1 1-2.83-2.83l.793-.792a4.018 4.018 0 0 1-.128-1.287z"/>
+                                                    <path d="M6.586 4.672A3 3 0 0 0 7.414 9.5l.775-.776a2 2 0 0 1-.896-3.346L9.12 3.55a2 2 0 1 1 2.83 2.83l-.793.792c.112.42.155.855.128 1.287l1.372-1.372a3 3 0 1 0-4.243-4.243L6.586 4.672z"/>
+                                                </svg>
+                                                リンク
+                                            </button>
                                         </div>
                                         <!-- コード/プレビュー切り替え -->
                                         <div class="btn-group btn-group-sm" role="group" aria-label="Content view toggle">
@@ -249,6 +256,110 @@
         </div>
     </div>
 
+    <!-- Link Insert Modal -->
+    <div class="modal fade" id="linkInsertModal" tabindex="-1" aria-labelledby="linkInsertModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="linkInsertModalLabel">リンクを挿入</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <!-- タブ切り替え -->
+                    <ul class="nav nav-tabs mb-3" id="linkTab" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link active" id="external-link-tab" data-bs-toggle="tab" data-bs-target="#external-link" type="button" role="tab" aria-controls="external-link" aria-selected="true">外部リンク（手入力）</button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="internal-link-tab" data-bs-toggle="tab" data-bs-target="#internal-link" type="button" role="tab" aria-controls="internal-link" aria-selected="false">内部リンク（コンテンツ選択）</button>
+                        </li>
+                    </ul>
+                    
+                    <!-- タブコンテンツ -->
+                    <div class="tab-content" id="linkTabContent">
+                        <!-- 外部リンクタブ -->
+                        <div class="tab-pane fade show active" id="external-link" role="tabpanel" aria-labelledby="external-link-tab">
+                            <div class="mb-3">
+                                <label for="externalLinkUrl" class="form-label fw-bold">URL</label>
+                                <input type="text" class="form-control" id="externalLinkUrl" placeholder="https://example.com" />
+                                <div class="invalid-feedback" id="externalLinkUrlError"></div>
+                            </div>
+                            <div class="mb-3">
+                                <label for="externalLinkText" class="form-label fw-bold">リンク文字</label>
+                                <input type="text" class="form-control" id="externalLinkText" placeholder="リンクテキスト" />
+                            </div>
+                            <div class="mb-3">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="externalLinkTarget" />
+                                    <label class="form-check-label" for="externalLinkTarget">
+                                        新しいタブで開く（target="_blank"）
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- 内部リンクタブ -->
+                        <div class="tab-pane fade" id="internal-link" role="tabpanel" aria-labelledby="internal-link-tab">
+                            <!-- 検索・フィルタ -->
+                            <div class="mb-3">
+                                <div class="row g-2">
+                                    <div class="col-md-6">
+                                        <input type="text" class="form-control" id="contentSearchKeyword" placeholder="キーワード検索" />
+                                    </div>
+                                    <div class="col-md-4">
+                                        <select class="form-select" id="contentFilterType">
+                                            <option value="">すべてのタイプ</option>
+                                            <option value="">コンテンツ</option>
+                                            <option value="template">テンプレート</option>
+                                            <option value="element">構成要素</option>
+                                            <option value="stylesheet">CSS</option>
+                                            <option value="script">JS</option>
+                                            <option value="image">画像</option>
+                                            <option value="file">ファイル</option>
+                                            <option value="movie">動画</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <button type="button" class="btn btn-warning w-100" onclick="searchContents()">検索</button>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- コンテンツ一覧 -->
+                            <div id="contentList" class="sky-list-container" style="max-height: 300px; overflow-y: auto;">
+                                <div class="text-center p-3">
+                                    <div class="spinner-border text-warning" role="status">
+                                        <span class="visually-hidden">Loading...</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- ページネーション -->
+                            <div id="contentPager" class="mt-3"></div>
+                            
+                            <div class="mb-3 mt-3">
+                                <label for="internalLinkText" class="form-label fw-bold">リンク文字</label>
+                                <input type="text" class="form-control" id="internalLinkText" placeholder="リンクテキスト" />
+                            </div>
+                            <div class="mb-3">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="internalLinkTarget" />
+                                    <label class="form-check-label" for="internalLinkTarget">
+                                        新しいタブで開く（target="_blank"）
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer d-flex justify-content-center align-items-center">
+                    <button type="button" class="btn btn-secondary mx-3" data-bs-dismiss="modal">キャンセル</button>
+                    <button type="button" class="btn btn-warning px-4 mx-3" id="linkInsertBtn" data-bs-dismiss="modal">挿入</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Footer -->
     <footer th:replace="~{fragments/common :: footer}"></footer>
     
@@ -358,6 +469,10 @@
         var selectedImage = null;
         var selectedFile = null;
         var selectedMovie = null;
+        var selectedContent = null;
+        var currentContentPage = 1;
+        var currentContentType = '';
+        var currentContentKeyword = '';
         
         // 画像一覧を読み込む
         function loadImages() {
@@ -605,6 +720,189 @@
             insertAtCursor('<br>');
         }
         
+        // URLバリデーション（一般的な不正文字チェック）
+        function validateUrl(url) {
+            if (!url || url.trim() === '') {
+                return { valid: false, message: 'URLを入力してください' };
+            }
+            // URLに使用できない文字をチェック（スペース、制御文字など）
+            var invalidChars = /[\s<>"{}|\\^`\[\]]/;
+            if (invalidChars.test(url)) {
+                return { valid: false, message: 'URLに使用できない文字が含まれています' };
+            }
+            // 基本的なURL形式チェック（http://, https://, /で始まる、または相対パス）
+            var urlPattern = /^(https?:\/\/|\/|\.\/|\.\.\/|[a-zA-Z0-9])/;
+            if (!urlPattern.test(url)) {
+                return { valid: false, message: '正しいURL形式で入力してください' };
+            }
+            return { valid: true, message: '' };
+        }
+        
+        // コンテンツ一覧を読み込む
+        function loadContents(type, keyword, page, sort) {
+            var contentList = document.getElementById('contentList');
+            contentList.innerHTML = '<div class="text-center p-3"><div class="spinner-border text-warning" role="status"><span class="visually-hidden">Loading...</span></div></div>';
+            selectedContent = null;
+            
+            var params = new URLSearchParams();
+            if (type) params.append('type', type);
+            if (keyword) params.append('keyword', keyword);
+            if (page) params.append('page', page);
+            if (sort) params.append('sort', sort);
+            
+            fetch('/webadmin/api/contents?' + params.toString())
+                .then(function(response) { return response.json(); })
+                .then(function(data) {
+                    if (!data.results || data.results.length === 0) {
+                        contentList.innerHTML = '<p class="text-center text-muted">コンテンツが見つかりません</p>';
+                        document.getElementById('contentPager').innerHTML = '';
+                        return;
+                    }
+                    var html = '';
+                    data.results.forEach(function(item, index) {
+                        var url = item.url ? '/' + item.url : '';
+                        var title = item.title || '（タイトルなし）';
+                        var typeName = getContentTypeName(item.type || '');
+                        html += '<div class="sky-list-card content-item d-flex align-items-center gap-3" data-index="' + index + '" data-id="' + item.id + '" data-url="' + url + '" data-title="' + title.replace(/'/g, "&#39;") + '">';
+                        html += '<div class="flex-grow-1">';
+                        html += '<p class="mb-0 small text-muted">ID: ' + item.id + ' | タイプ: ' + typeName + '</p>';
+                        html += '<h5 class="mb-1">' + title + '</h5>';
+                        html += '<p class="mb-0 small">URL: ' + (url || '（URLなし）') + '</p>';
+                        html += '</div>';
+                        html += '</div>';
+                    });
+                    contentList.innerHTML = html;
+                    
+                    // ページネーション
+                    if (data.pagerOutput) {
+                        var pagerHtml = data.pagerOutput;
+                        // ページネーションリンクをJavaScript関数呼び出しに変換
+                        pagerHtml = pagerHtml.replace(/href="[^"]*[?&]page=(\d+)[^"]*"/g, function(match, pageNum) {
+                            return 'href="#" onclick="loadContents(\'' + currentContentType + '\', \'' + currentContentKeyword.replace(/'/g, "\\'") + '\', ' + pageNum + ', \'updated desc\'); return false;"';
+                        });
+                        document.getElementById('contentPager').innerHTML = pagerHtml;
+                    } else {
+                        document.getElementById('contentPager').innerHTML = '';
+                    }
+                    
+                    // クリックイベントを追加
+                    document.querySelectorAll('.content-item').forEach(function(el) {
+                        el.addEventListener('click', function() {
+                            document.querySelectorAll('.content-item').forEach(function(e) { e.style.boxShadow = ''; });
+                            this.style.boxShadow = '0 0 0 .25rem rgba(13, 110, 253, .25)';
+                            selectedContent = {
+                                id: this.dataset.id,
+                                url: this.dataset.url,
+                                title: this.dataset.title
+                            };
+                        });
+                    });
+                })
+                .catch(function(error) {
+                    console.error('Error loading contents:', error);
+                    contentList.innerHTML = '<p class="text-center text-danger">コンテンツの読み込みに失敗しました</p>';
+                });
+        }
+        
+        // コンテンツタイプ名を取得
+        function getContentTypeName(type) {
+            var typeMap = {
+                '': 'コンテンツ',
+                'template': 'テンプレート',
+                'element': '構成要素',
+                'stylesheet': 'CSS',
+                'script': 'JS',
+                'image': '画像',
+                'file': 'ファイル',
+                'movie': '動画'
+            };
+            return typeMap[type] || '不明';
+        }
+        
+        // コンテンツ検索
+        function searchContents() {
+            var keyword = document.getElementById('contentSearchKeyword').value.trim();
+            var type = document.getElementById('contentFilterType').value;
+            currentContentType = type;
+            currentContentKeyword = keyword;
+            currentContentPage = 1;
+            loadContents(type, keyword, 1, 'updated desc');
+        }
+        
+        // リンクタグを挿入
+        function insertLinkTag() {
+            var activeTab = document.querySelector('#linkTab .nav-link.active');
+            var isExternal = activeTab && activeTab.id === 'external-link-tab';
+            
+            if (isExternal) {
+                // 外部リンク
+                var url = document.getElementById('externalLinkUrl').value.trim();
+                var text = document.getElementById('externalLinkText').value.trim();
+                var target = document.getElementById('externalLinkTarget').checked;
+                
+                // URLバリデーション
+                var validation = validateUrl(url);
+                if (!validation.valid) {
+                    var urlInput = document.getElementById('externalLinkUrl');
+                    urlInput.classList.add('is-invalid');
+                    document.getElementById('externalLinkUrlError').textContent = validation.message;
+                    return;
+                }
+                document.getElementById('externalLinkUrl').classList.remove('is-invalid');
+                
+                // リンク文字が空の場合はURLを使用
+                if (!text) {
+                    text = url;
+                }
+                
+                var tag = '<a href="' + url + '"';
+                if (target) {
+                    tag += ' target="_blank"';
+                }
+                tag += '>' + text + '</a>';
+                insertAtCursor(tag);
+                
+                // フォームをリセット
+                document.getElementById('externalLinkUrl').value = '';
+                document.getElementById('externalLinkText').value = '';
+                document.getElementById('externalLinkTarget').checked = false;
+            } else {
+                // 内部リンク
+                if (!selectedContent) {
+                    alert('コンテンツを選択してください');
+                    return;
+                }
+                
+                var url = selectedContent.url || '';
+                var text = document.getElementById('internalLinkText').value.trim();
+                var target = document.getElementById('internalLinkTarget').checked;
+                
+                // URLが空の場合はエラー
+                if (!url) {
+                    alert('選択したコンテンツにURLが設定されていません');
+                    return;
+                }
+                
+                // リンク文字が空の場合はタイトルを使用
+                if (!text) {
+                    text = selectedContent.title || url;
+                }
+                
+                var tag = '<a href="' + url + '"';
+                if (target) {
+                    tag += ' target="_blank"';
+                }
+                tag += '>' + text + '</a>';
+                insertAtCursor(tag);
+                
+                // フォームをリセット
+                selectedContent = null;
+                document.getElementById('internalLinkText').value = '';
+                document.getElementById('internalLinkTarget').checked = false;
+                document.querySelectorAll('.content-item').forEach(function(e) { e.style.boxShadow = ''; });
+            }
+        }
+        
         // 初期化
         document.addEventListener('DOMContentLoaded', function() {
             // Submit Modal - 登録ボタン
@@ -673,6 +971,57 @@
             if (movieSelectBtn) {
                 movieSelectBtn.addEventListener('click', function() {
                     insertMovieTag();
+                });
+            }
+            
+            // リンク挿入モーダル
+            var linkInsertModal = document.getElementById('linkInsertModal');
+            if (linkInsertModal) {
+                linkInsertModal.addEventListener('show.bs.modal', function() {
+                    // モーダル表示時に外部リンクタブをアクティブにする
+                    var externalTab = document.getElementById('external-link-tab');
+                    if (externalTab) {
+                        var tab = new bootstrap.Tab(externalTab);
+                        tab.show();
+                    }
+                    // フォームをリセット
+                    document.getElementById('externalLinkUrl').value = '';
+                    document.getElementById('externalLinkText').value = '';
+                    document.getElementById('externalLinkTarget').checked = false;
+                    document.getElementById('internalLinkText').value = '';
+                    document.getElementById('internalLinkTarget').checked = false;
+                    selectedContent = null;
+                    document.querySelectorAll('.content-item').forEach(function(e) { e.style.boxShadow = ''; });
+                });
+                
+                // タブ切り替え時にコンテンツ一覧を読み込む
+                var internalLinkTab = document.getElementById('internal-link-tab');
+                if (internalLinkTab) {
+                    internalLinkTab.addEventListener('shown.bs.tab', function() {
+                        currentContentType = '';
+                        currentContentKeyword = '';
+                        currentContentPage = 1;
+                        loadContents('', '', 1, 'updated desc');
+                    });
+                }
+            }
+            
+            // リンク挿入ボタン
+            var linkInsertBtn = document.getElementById('linkInsertBtn');
+            if (linkInsertBtn) {
+                linkInsertBtn.addEventListener('click', function() {
+                    insertLinkTag();
+                });
+            }
+            
+            // 検索キーワードのEnterキー対応
+            var contentSearchKeyword = document.getElementById('contentSearchKeyword');
+            if (contentSearchKeyword) {
+                contentSearchKeyword.addEventListener('keypress', function(e) {
+                    if (e.key === 'Enter') {
+                        e.preventDefault();
+                        searchContents();
+                    }
                 });
             }
         });
