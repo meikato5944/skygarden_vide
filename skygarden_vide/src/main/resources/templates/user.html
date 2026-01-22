@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/common :: head('ユーザ管理 - Skygarden')}"></head>
+<body>
+    <!-- Sidebar -->
+    <nav th:replace="~{fragments/common :: sidebar}"></nav>
+    
+    <!-- Header (Mobile) -->
+    <nav th:replace="~{fragments/common :: header}"></nav>
+    
+    <!-- Offcanvas Menu (Mobile) -->
+    <div th:replace="~{fragments/common :: offcanvas}"></div>
+    
+    <main>
+        <div class="flex-grow-1 d-flex justify-content-center align-items-center p-4">
+            <section class="w-100 sky-User-container sky-content">
+                <h2 class="text-center mb-2">ユーザ管理画面</h2>
+                <div class="sky-User-box">
+                    <form id="contentform" name="contentform" action="/webadmin/user_post" method="POST">
+                        <div class="sky-User-adminSwitch mb-1">
+                            <div class="form-check form-switch">
+                                <input class="form-check-input sky-input-switch" type="checkbox" role="switch" id="admin" name="admin" value="1" th:checked="${admin == '1'}" />
+                                <label class="form-check-label ms-2" for="admin">admin</label>
+                            </div>
+                        </div>
+                        <div class="mb-2 d-flex">
+                            <label for="username" class="sky-form-label me-2">ID:</label>
+                            <p th:text="${id != '' and id != null ? id : '新規'}"></p>
+                        </div>
+                        <div class="mb-3">
+                            <label for="name" class="form-label sky-form-label">Name:</label>
+                            <input type="text" class="form-control sky-input" id="name" name="name" th:value="${name}" placeholder="Enter your username" required />
+                        </div>
+                        <div class="mb-3">
+                            <label for="password" class="form-label sky-form-label">Password:</label>
+                            <input type="password" class="form-control sky-input" id="password" name="password" th:value="${password}" placeholder="Enter a new password" required />
+                        </div>
+                        <div class="mb-3">
+                            <label for="email" class="form-label sky-form-label">Email Address:</label>
+                            <input type="email" class="form-control sky-input" id="email" name="email" th:value="${email}" placeholder="Enter your email" required />
+                        </div>
+                        <button type="button" class="btn btn-warning fw-bold sky-bg-2 sky-submit" data-bs-toggle="modal" data-bs-target="#submitModal">
+                            登録
+                        </button>
+                        <input type="hidden" name="id" th:value="${id}" />
+                    </form>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <!-- Submit Modal -->
+    <div th:replace="~{fragments/common :: submit-modal}"></div>
+    
+    <!-- Footer -->
+    <footer th:replace="~{fragments/common :: footer}"></footer>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            var submitModalBtn = document.getElementById('submitModalBtn');
+            if (submitModalBtn) {
+                submitModalBtn.addEventListener('click', function() {
+                    var form = document.getElementById('contentform');
+                    if (form) {
+                        form.submit();
+                    }
+                });
+            }
+        });
+    </script>
+</body>
+</html>

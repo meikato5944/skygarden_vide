@@ -1,0 +1,19 @@
+{
+  "compilerOptions": {
+    "target": "ES6", // 出力するJavaScriptのバージョン
+    "lib": ["dom", "dom.iterable", "esnext"], // 使用するライブラリ
+    "allowJs": true, // JavaScriptファイルを許可
+    "skipLibCheck": true, // 型定義ファイルのチェックをスキップ
+    "strict": true, // 厳格な型チェックを有効に
+    "forceConsistentCasingInFileNames": true, // ファイル名の大文字小文字を一致させる
+    "noEmit": true, // 出力を生成しない
+    "esModuleInterop": true, // ESモジュールとの互換性を有効に
+    "module": "commonjs", // モジュールシステム
+    "moduleResolution": "node", // モジュール解決の方法
+    "resolveJsonModule": true, // JSONモジュールの解決を有効に
+    "isolatedModules": true, // 各ファイルを独立したモジュールとして扱う
+    "jsx": "react" // JSXの変換方法
+  },
+  "include": ["src"], // コンパイル対象のファイル
+  "exclude": ["node_modules"] // 除外するファイル
+}

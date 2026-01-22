@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/common :: head('テンプレート編集 - Skygarden')}"></head>
+<body>
+    <!-- Sidebar -->
+    <nav th:replace="~{fragments/common :: sidebar}"></nav>
+    
+    <!-- Header (Mobile) -->
+    <nav th:replace="~{fragments/common :: header}"></nav>
+    
+    <!-- Offcanvas Menu (Mobile) -->
+    <div th:replace="~{fragments/common :: offcanvas}"></div>
+    
+    <main>
+        <div class="flex-grow-1 d-flex justify-content-center align-items-center p-4 sky-content">
+            <div class="w-100">
+                <h2 class="text-center mb-3">テンプレート入稿画面</h2>
+                <div class="card border-warning rounded sky-bg-1">
+                    <div class="card-body">
+                        <form id="contentform" name="contentform" action="/webadmin/update_post" method="POST">
+                            <!-- delete -->
+                            <div th:if="${id != '' and id != null}" class="sky-Content-delete mb-2">
+                                <a class="btn btn-warning sky-Content-delete-item sky-bg-2 ms-auto" data-bs-toggle="modal" data-bs-target="#deleteModal">
+                                    <img th:src="@{/common/image/trash.svg}" alt="delete" />
+                                </a>
+                            </div>
+                            <input type="hidden" id="published" name="published" value="1" />
+                            
+                            <!-- title -->
+                            <div class="mb-3">
+                                <label for="title" class="sky-form-label fw-bold ms-1">title</label>
+                                <input type="text" class="form-control sky-input" id="title" name="title" th:value="${title}" placeholder="Enter title" required />
+                                <div class="ms-2 invalid-feedback"></div>
+                            </div>
+                            
+                            <!-- head -->
+                            <div class="mb-3">
+                                <label for="head" class="sky-form-label fw-bold ms-1">head</label>
+                                <textarea class="form-control border-warning sky-input sky-input-head" id="head" name="head" rows="10" placeholder="Enter head" th:text="${head}"></textarea>
+                            </div>
+                            
+                            <!-- content (element input) -->
+                            <div class="mb-3">
+                                <label for="content" class="sky-form-label fw-bold ms-1">content</label>
+                                <div class="form-control border-warning" id="elements" data-name="content">
+                                    <div th:each="eleResult, iterStat : ${eleResults}" 
+                                         th:id="'element-' + ${iterStat.index}" 
+                                         data-name="element-content"
+                                         th:data-element-id="${(eleResult != null and eleResult.id != null) ? eleResult.id : 'content'}"
+                                         th:data-element-title="${(eleResult != null and eleResult.title != null) ? eleResult.title : ''}"
+                                         th:data-element-code="${(eleResult != null and eleResult.code != null) ? eleResult.code : ''}"
+                                         class="sky-Content-element-card justify-content-between"
+                                         th:style="${(eleResult != null and eleResult.code != null and eleResult.code != '') ? ('background-color: ' + eleResult.code) : ''}">
+                                        <div>
+                                            <div class="btn btn-warning mx-1 sky-Content-element-arrow" onclick="upButton(event)">▲</div>
+                                            <div class="btn btn-warning mx-1 sky-Content-element-arrow" onclick="downButton(event)">▼</div>
+                                        </div>
+                                        <h5 class="d-flex justify-content-center align-items-center" th:text="${(eleResult != null and eleResult.title != null and eleResult.title != '') ? eleResult.title : 'コンテンツ部分'}"></h5>
+                                        <div th:if="${eleResult != null and eleResult.id != null and eleResult.id != '' and eleResult.id != 'content'}">
+                                            <div class="btn btn-warning sky-Content-element-delete" onclick="eleDelete(event)">
+                                                <img th:src="@{/common/image/trash.svg}" alt="elementDelImg" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!-- elementAdd -->
+                                <div>
+                                    <button type="button" class="w-100 border-0 p-0" data-bs-toggle="modal" data-bs-target="#elementSelectModal" id="element-add-btn">
+                                        <div class="d-flex justify-content-center align-items-center btn btn-warning p-3 my-2 sky-bg-2">
+                                            <img class="sky-list-newCreate-img" th:src="@{/common/image/plus-lg.svg}" alt="elementAdd" />
+                                        </div>
+                                    </button>
+                                </div>
+                                <input type="hidden" name="content" id="content" th:value="${contentStr}" />
+                            </div>
+                            
+                            <!-- Save button -->
+                            <div class="text-center">
+                                <button type="button" class="btn btn-warning w-100 mb-2 mt-5 sky-submit sky-bg-2" data-bs-toggle="modal" data-bs-target="#submitModal">
+                                    Save
+                                </button>
+                            </div>
+                            
+                            <input type="hidden" name="id" th:value="${id}" />
+                            <input type="hidden" name="type" value="template" />
+                        </form>
+                        
+                        <!-- Delete form -->
+                        <form id="deleteform" name="deleteform" action="/webadmin/delete_post" method="POST">
+                            <input type="hidden" name="id" id="deleteId" th:value="${id}" />
+                            <input type="hidden" name="mode" value="template" />
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Submit Modal -->
+    <div th:replace="~{fragments/common :: submit-modal}"></div>
+
+    <!-- Delete Modal -->
+    <div th:replace="~{fragments/common :: delete-modal}"></div>
+
+    <!-- Element Select Modal -->
+    <div class="modal fade" id="elementSelectModal" tabindex="-1" aria-labelledby="elementSelectModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="elementSelectModalLabel">Element Select</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <section class="sky-list-container">
+                        <div th:each="elementItem, iterStat : ${elementItems}" th:id="'element-item-' + ${iterStat.index}">
+                            <div th:class="'sky-list-card entry element-' + ${iterStat.index}" th:data-index="${iterStat.index}" th:style="${(elementItem != null and elementItem.elementcolor != null and elementItem.elementcolor != '') ? ('background-color: ' + elementItem.elementcolor) : ''}" style="cursor: pointer;">
+                                <p class="mb-0">ID: <span th:text="${(elementItem != null and elementItem.id != null) ? elementItem.id : ''}"></span></p>
+                                <h5 class="mb-1" th:text="${(elementItem != null and elementItem.title != null) ? elementItem.title : ''}"></h5>
+                            </div>
+                            <input type="hidden" th:id="'element-' + ${iterStat.index} + '-id'" th:value="${(elementItem != null and elementItem.id != null) ? elementItem.id : ''}" />
+                            <input type="hidden" th:id="'element-' + ${iterStat.index} + '-title'" th:value="${(elementItem != null and elementItem.title != null) ? elementItem.title : ''}" />
+                            <input type="hidden" th:id="'element-' + ${iterStat.index} + '-code'" th:value="${(elementItem != null and elementItem.elementcolor != null) ? elementItem.elementcolor : ''}" />
+                        </div>
+                        <input type="hidden" id="selected-index" value="" />
+                        <input type="hidden" id="selected-value" value="" />
+                    </section>
+                </div>
+                <div class="modal-footer d-flex justify-content-center align-items-center">
+                    <button type="button" class="btn btn-secondary mx-5" id="elementCancelBtn" data-bs-dismiss="modal">キャンセル</button>
+                    <button type="button" class="btn btn-warning px-4 mx-5" id="elementSelectBtn" data-bs-dismiss="modal">選択</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer th:replace="~{fragments/common :: footer}"></footer>
+    
+    <script>
+        // テンプレートモード用のJavaScript関数
+        var elementItems = [];
+        var elementAddIndex = 0;
+        
+        // 構成要素の一覧から配列を作成
+        function createElementItems() {
+            var elements = document.querySelectorAll('[data-name="element-content"]');
+            elementItems = [];
+            for (var i = 0; i < elements.length; i++) {
+                var element = elements[i];
+                var elementId = element.getAttribute('data-element-id');
+                var idStr = (elementId === 'content' || elementId === '') ? 'content' : (elementId || '');
+                elementItems.push({
+                    id: idStr,
+                    title: element.getAttribute('data-element-title') || '',
+                    code: element.getAttribute('data-element-code') || ''
+                });
+            }
+        }
+        
+        // 構成要素の配列を一覧に反映
+        function reElements() {
+            var elements = document.querySelectorAll('[data-name="element-content"]');
+            for (var i = 0; i < elementItems.length; i++) {
+                var element = elements[i];
+                if (!element) continue;
+                
+                var item = elementItems[i];
+                element.id = 'element-' + i;
+                
+                if (item.id === '' || item.id === 'content') {
+                    element.setAttribute('data-element-id', 'content');
+                    element.setAttribute('data-element-title', item.title);
+                    element.setAttribute('data-element-code', item.code);
+                    element.style.backgroundColor = '#fff888';
+                    var h5 = element.querySelector('h5');
+                    if (h5) h5.textContent = 'コンテンツ部分';
+                } else {
+                    element.setAttribute('data-element-id', item.id);
+                    element.setAttribute('data-element-title', item.title);
+                    element.setAttribute('data-element-code', item.code);
+                    element.style.backgroundColor = item.code;
+                    var h5 = element.querySelector('h5');
+                    if (h5) h5.textContent = item.title;
+                }
+            }
+        }
+        
+        // 構成要素を上に移動
+        function upButton(event) {
+            var card = event.currentTarget.closest('[data-name="element-content"]');
+            if (!card) return;
+            
+            var indexStr = card.id;
+            var index = parseInt(indexStr.replace('element-', ''), 10);
+            if (index > 0 && elementItems.length > 0) {
+                var prev = document.getElementById('element-' + (index - 1));
+                if (prev) {
+                    card.parentNode.insertBefore(card, prev);
+                    createElementItems();
+                    reElements();
+                }
+            }
+        }
+        
+        // 構成要素を下に移動
+        function downButton(event) {
+            var card = event.currentTarget.closest('[data-name="element-content"]');
+            if (!card) return;
+            
+            var indexStr = card.id;
+            var index = parseInt(indexStr.replace('element-', ''), 10);
+            if (index < elementItems.length - 1) {
+                var next = document.getElementById('element-' + (index + 1));
+                if (next && next.nextSibling) {
+                    card.parentNode.insertBefore(card, next.nextSibling);
+                } else if (next) {
+                    card.parentNode.appendChild(card);
+                }
+                createElementItems();
+                reElements();
+            }
+        }
+        
+        // 構成要素を削除
+        function eleDelete(event) {
+            var card = event.currentTarget.closest('[data-name="element-content"]');
+            if (!card) return;
+            
+            var indexId = card.getAttribute('data-element-id');
+            if (indexId && indexId !== 'content' && indexId !== '') {
+                var indexStr = card.id;
+                var indexToRemove = parseInt(indexStr.replace('element-', ''), 10);
+                elementItems.splice(indexToRemove, 1);
+                card.remove();
+                createElementItems();
+                reElements();
+            }
+        }
+        
+        // 構成要素を追加
+        function addElementToDOM() {
+            var index = elementItems.length;
+            elementItems.push({
+                id: '',
+                title: 'タイトル',
+                code: ''
+            });
+            elementAddIndex = index;
+            
+            // DOMに追加
+            var elementsContainer = document.getElementById('elements');
+            var templateElement = document.querySelector('[data-name="element-content"]');
+            if (elementsContainer && templateElement) {
+                var newelement = templateElement.cloneNode(true);
+                newelement.id = 'element-' + index;
+                newelement.setAttribute('data-element-id', '');
+                newelement.setAttribute('data-element-title', 'タイトル');
+                newelement.setAttribute('data-element-code', '');
+                var h5 = newelement.querySelector('h5');
+                if (h5) h5.textContent = 'タイトル';
+                elementsContainer.appendChild(newelement);
+            }
+        }
+        
+        // 構成要素を選択
+        function elementSelect(index) {
+            // 全てのentryの選択状態をクリア
+            var entries = document.querySelectorAll('.entry');
+            entries.forEach(function(entry) {
+                entry.style.boxShadow = 'none';
+            });
+            // 選択したものをハイライト
+            var selected = document.querySelector('.element-' + index);
+            if (selected) {
+                selected.style.boxShadow = '0 0 0 .25rem rgba(13, 110, 253, .25)';
+            }
+            var selectedIndexInput = document.getElementById('selected-index');
+            if (selectedIndexInput) {
+                selectedIndexInput.value = index.toString();
+            }
+        }
+        
+        // 選択した構成要素を確定
+        function elementSelectedComp() {
+            var selectedIndexInput = document.getElementById('selected-index');
+            if (selectedIndexInput && selectedIndexInput.value !== '') {
+                var idx = selectedIndexInput.value;
+                var selectedId = document.getElementById('element-' + idx + '-id');
+                var selectedTitle = document.getElementById('element-' + idx + '-title');
+                var selectedCode = document.getElementById('element-' + idx + '-code');
+                if (selectedId && selectedTitle && selectedCode) {
+                    elementItems[elementAddIndex].id = selectedId.value;
+                    elementItems[elementAddIndex].title = selectedTitle.value;
+                    elementItems[elementAddIndex].code = selectedCode.value;
+                    reElements();
+                }
+            }
+        }
+        
+        // 構成要素の追加をキャンセル
+        function eleCancelDelete() {
+            if (elementItems.length > 0) {
+                elementItems.splice(-1, 1);
+                var elements = document.querySelectorAll('[data-name="element-content"]');
+                if (elements.length > 0) {
+                    elements[elements.length - 1].remove();
+                }
+            }
+        }
+        
+        // テンプレートのフォームを送信
+        function doSubmitTemp() {
+            var eleContent = '';
+            for (var i = 0; i < elementItems.length; i++) {
+                if (elementItems[i].id === 'content') {
+                    eleContent += '###content###,';
+                } else {
+                    eleContent += '###element(' + elementItems[i].id + ')###,';
+                }
+            }
+            eleContent = eleContent.slice(0, -1);
+            var contentForm = document.getElementById('contentform');
+            var contentInput = document.getElementById('content');
+            if (contentForm && contentInput) {
+                contentInput.value = eleContent;
+                contentForm.submit();
+            }
+        }
+        
+        // 初期化
+        document.addEventListener('DOMContentLoaded', function() {
+            createElementItems();
+            
+            // Submit Modal - 登録ボタン
+            var submitModalBtn = document.getElementById('submitModalBtn');
+            if (submitModalBtn) {
+                submitModalBtn.addEventListener('click', function() {
+                    doSubmitTemp();
+                });
+            }
+            
+            // Delete Modal - 削除ボタン
+            var deleteModalBtn = document.getElementById('deleteModalBtn');
+            if (deleteModalBtn) {
+                deleteModalBtn.addEventListener('click', function() {
+                    var deleteForm = document.getElementById('deleteform');
+                    if (deleteForm) {
+                        deleteForm.submit();
+                    }
+                });
+            }
+            
+            // Element Add Button
+            var addBtn = document.getElementById('element-add-btn');
+            if (addBtn) {
+                addBtn.addEventListener('click', function() {
+                    addElementToDOM();
+                });
+            }
+            
+            // Element Select Modal - 要素選択
+            var elementEntries = document.querySelectorAll('.entry[data-index]');
+            elementEntries.forEach(function(entry) {
+                entry.addEventListener('click', function() {
+                    var index = this.getAttribute('data-index');
+                    elementSelect(parseInt(index, 10));
+                });
+            });
+            
+            // Element Select Modal - 選択ボタン
+            var elementSelectBtn = document.getElementById('elementSelectBtn');
+            if (elementSelectBtn) {
+                elementSelectBtn.addEventListener('click', function() {
+                    elementSelectedComp();
+                });
+            }
+            
+            // Element Select Modal - キャンセルボタン
+            var elementCancelBtn = document.getElementById('elementCancelBtn');
+            if (elementCancelBtn) {
+                elementCancelBtn.addEventListener('click', function() {
+                    eleCancelDelete();
+                });
+            }
+        });
+    </script>
+</body>
+</html>
