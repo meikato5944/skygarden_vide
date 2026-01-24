@@ -65,20 +65,24 @@ public class Batch {
 
 		for (HashMap<String, String> resultItem : results) {
 			String id = resultItem.get("id");
-			HashMap<String, String> result = mapper.search(id, Constants.TABLE_CONTENT);
-			HashMap<String, String> publicResult = mapper.search(id, Constants.TABLE_CONTENT_PUBLIC);
-			String name = result.get("created_by");
-			String url = result.get("url");
-			String title = result.get("title");
-			String head = result.get("head");
-			String contentStr = result.get("content");
-			String type = result.get("type");
-			String elementcolor = result.get("elementcolor");
-			String template = result.get("template");
-			String schedule_published = Constants.EMPTY_STRING; // 公開後のため空で登録
-			String schedule_unpublished = result.get("schedule_unpublished");
-			String publishflg_keep = result.get("publishflg_keep");
 			try {
+				HashMap<String, String> result = mapper.search(id, Constants.TABLE_CONTENT);
+				if (result == null) {
+					log.error("バッチ処理エラー: コンテンツID {} が見つかりません", id);
+					continue;
+				}
+				HashMap<String, String> publicResult = mapper.search(id, Constants.TABLE_CONTENT_PUBLIC);
+				String name = result.get("created_by");
+				String url = result.get("url");
+				String title = result.get("title");
+				String head = result.get("head");
+				String contentStr = result.get("content");
+				String type = result.get("type");
+				String elementcolor = result.get("elementcolor");
+				String template = result.get("template");
+				String schedule_published = Constants.EMPTY_STRING; // 公開後のため空で登録
+				String schedule_unpublished = result.get("schedule_unpublished");
+				String publishflg_keep = result.get("publishflg_keep");
 				boolean isFirstPublish = (publicResult == null || publicResult.isEmpty() || publicResult.get("id") == null || publicResult.get("id").equals(Constants.EMPTY_STRING));
 				if (isFirstPublish) {
 					String nowTime = CommonProc.createNow();
@@ -109,6 +113,7 @@ public class Batch {
 			} catch (Exception e) {
 				log.error("バッチ処理エラー: " + e.toString());
 				e.printStackTrace();
+				// 例外が発生しても次のコンテンツの処理を継続
 			}
 		}
 	}

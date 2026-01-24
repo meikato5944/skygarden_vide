@@ -67,7 +67,7 @@ public class User {
 	 * @return 処理成功時true
 	 */
 	public boolean create(String name, String password, String email, String admin, HttpServletRequest request, HttpServletResponse response, HttpSession session) {
-		if (!admin.equals(Constants.FLAG_YES)) {
+		if (admin == null || !admin.equals(Constants.FLAG_YES)) {
 			admin = Constants.FLAG_NO;
 		}
 		try {
@@ -99,7 +99,7 @@ public class User {
 	 * @return 処理成功時true
 	 */
 	public boolean update(String id, String name, String password, String email, String admin, HttpServletRequest request, HttpServletResponse response, HttpSession session) {
-		if (!admin.equals(Constants.FLAG_YES)) {
+		if (admin == null || !admin.equals(Constants.FLAG_YES)) {
 			admin = Constants.FLAG_NO;
 		}
 		try {
