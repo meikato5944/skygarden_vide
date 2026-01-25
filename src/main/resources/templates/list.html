@@ -18,23 +18,23 @@
                     <h1 class="ms-1 mb-0" th:text="${screenName} + '一覧'"></h1>
                 </div>
                 <div class="d-flex gap-2">
-                    <div class="sky-button-batchActions">
-                        <button id="startBatchDeleteBtn" class="btn btn-danger sky-bg-4 px-3 py-2 fw-bold" style="font-size: 1rem;">
+                    <div class="sky-button-batchActions sky-input-pulldown">
+                        <button id="startBatchDeleteBtn" class="sky-list-sort" style="font-size: 1rem;">
                             <span>一括削除</span>
                         </button>
-                        <button id="startBatchCopyBtn" class="btn btn-primary sky-bg-4 px-3 py-2 fw-bold" style="font-size: 1rem;">
+                        <button id="startBatchCopyBtn" class="sky-list-sort" style="font-size: 1rem;">
                             <span>コピー</span>
                         </button>
-                        <button id="selectAllBtn" class="btn btn-secondary sky-bg-4 px-3 py-2 fw-bold" style="font-size: 1rem; display: none;">
+                        <button id="selectAllBtn" class="sky-list-sort" style="font-size: 1rem; display: none;">
                             <span>一括選択</span>
                         </button>
-                        <button id="batchDeleteBtn" class="btn btn-danger sky-bg-4 px-3 py-2 fw-bold" style="font-size: 1rem; display: none;" disabled>
+                        <button id="batchDeleteBtn" class="sky-list-sort" style="font-size: 1rem; display: none;" disabled>
                             <span>削除実行</span>
                         </button>
-                        <button id="batchCopyBtn" class="btn btn-primary sky-bg-4 px-3 py-2 fw-bold" style="font-size: 1rem; display: none;" disabled>
+                        <button id="batchCopyBtn" class="sky-list-sort" style="font-size: 1rem; display: none;" disabled>
                             <span>コピー実行</span>
                         </button>
-                        <button id="cancelBatchBtn" class="btn btn-secondary sky-bg-4 px-3 py-2 fw-bold" style="font-size: 1rem; display: none;">
+                        <button id="cancelBatchBtn" class="sky-list-sort" style="font-size: 1rem; display: none;">
                             <span>キャンセル</span>
                         </button>
                     </div>

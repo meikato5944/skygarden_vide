@@ -9,7 +9,7 @@
   /* Layout */
   --sidebar-width: 250px;
   
-  /* Colors - Primary */
+  /* Colors - Primary */          
   --sky-black: #1a1a1a;
   --sky-white: #ffffff;
   --sky-yellow-1: #fff888;
@@ -234,6 +234,36 @@ a:hover {
   border-color: var(--sky-yellow-5);
   box-shadow: 0 0 0 0.2rem rgba(238, 225, 2, 0.25);
   outline: none;
+}
+
+/* ボタンにsky-list-sortスタイルを適用 */
+button.sky-list-sort {
+  background-color: var(--sky-yellow-2);
+  border: 2px solid var(--sky-yellow-4);
+  border-radius: var(--sky-radius-sm);
+  color: var(--sky-black);
+  cursor: pointer;
+  font-weight: 600;
+  padding: 0.5rem 1rem;
+  transition: var(--sky-transition);
+  min-width: 120px;
+  text-align: center;
+}
+
+button.sky-list-sort:hover:not(:disabled) {
+  background-color: var(--sky-yellow-1);
+  border-color: var(--sky-yellow-5);
+  box-shadow: var(--sky-shadow-md);
+  transform: translateY(-2px);
+}
+
+button.sky-list-sort:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+button.sky-list-sort:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 .sky-list-newCreate-img {
