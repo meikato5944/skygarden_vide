@@ -611,27 +611,37 @@ public class Content {
 	public String displayContent(String id) {
 		StringBuffer output = new StringBuffer();
 		HashMap<String, String> result = mapper.search(id, "content_public");
+		if (result == null || result.isEmpty()) {
+			return Constants.EMPTY_STRING;
+		}
 		String templateId = result.get("template");
 		if (templateId != null && !templateId.equals(Constants.EMPTY_STRING)) {
 			HashMap<String, String> tempResult = mapper.search(templateId, Constants.TABLE_CONTENT);
-			String tempCon = tempResult.get("content");
-			if (tempCon != null && !tempCon.equals(Constants.EMPTY_STRING)) {
-				String[] elements = tempCon.split(",");
-				for (int i = 0; i < elements.length; i++) {
-					String templateContent = elements[i];
-					if (templateContent.equals(Constants.TEMPLATE_CONTENT_PLACEHOLDER)) {
-						output.append(result.get("content"));
-					} else {
-						String elementId = templateContent.replace(Constants.ELEMENT_PREFIX, Constants.EMPTY_STRING)
-								.replace(Constants.ELEMENT_FUNCTION_START, Constants.EMPTY_STRING)
-								.replace(Constants.ELEMENT_FUNCTION_END, Constants.EMPTY_STRING);
-						HashMap<String, String> eleResult = mapper.search(elementId, Constants.TABLE_CONTENT);
-						output.append(eleResult.get("content"));
+			if (tempResult != null) {
+				String tempCon = tempResult.get("content");
+				if (tempCon != null && !tempCon.equals(Constants.EMPTY_STRING)) {
+					String[] elements = tempCon.split(",");
+					for (int i = 0; i < elements.length; i++) {
+						String templateContent = elements[i];
+						if (templateContent.equals(Constants.TEMPLATE_CONTENT_PLACEHOLDER)) {
+							String content = result.get("content");
+							output.append(content != null ? content : Constants.EMPTY_STRING);
+						} else {
+							String elementId = templateContent.replace(Constants.ELEMENT_PREFIX, Constants.EMPTY_STRING)
+									.replace(Constants.ELEMENT_FUNCTION_START, Constants.EMPTY_STRING)
+									.replace(Constants.ELEMENT_FUNCTION_END, Constants.EMPTY_STRING);
+							HashMap<String, String> eleResult = mapper.search(elementId, Constants.TABLE_CONTENT);
+							if (eleResult != null) {
+								String eleContent = eleResult.get("content");
+								output.append(eleContent != null ? eleContent : Constants.EMPTY_STRING);
+							}
+						}
 					}
 				}
 			}
 		} else {
-			output.append(result.get("content"));
+			String content = result.get("content");
+			output.append(content != null ? content : Constants.EMPTY_STRING);
 		}
 		// [movie id=xxx]タグをYouTube埋め込みコードに変換
 		return convertMovieTags(output.toString());
@@ -647,21 +657,29 @@ public class Content {
 	 */
 	public String previewContent(String content, String templateId) {
 		StringBuffer output = new StringBuffer();
+		if (content == null) {
+			content = Constants.EMPTY_STRING;
+		}
 		if (templateId != null && !templateId.equals(Constants.EMPTY_STRING)) {
 			HashMap<String, String> tempResult = mapper.search(templateId, Constants.TABLE_CONTENT);
-			String tempCon = tempResult.get("content");
-			if (tempCon != null && !tempCon.equals(Constants.EMPTY_STRING)) {
-				String[] elements = tempCon.split(",");
-				for (int i = 0; i < elements.length; i++) {
-					String templateContent = elements[i];
-					if (templateContent.equals(Constants.TEMPLATE_CONTENT_PLACEHOLDER)) {
-						output.append(content);
-					} else {
-						String elementId = templateContent.replace(Constants.ELEMENT_PREFIX, Constants.EMPTY_STRING)
-								.replace(Constants.ELEMENT_FUNCTION_START, Constants.EMPTY_STRING)
-								.replace(Constants.ELEMENT_FUNCTION_END, Constants.EMPTY_STRING);
-						HashMap<String, String> eleResult = mapper.search(elementId, Constants.TABLE_CONTENT);
-						output.append(eleResult.get("content"));
+			if (tempResult != null) {
+				String tempCon = tempResult.get("content");
+				if (tempCon != null && !tempCon.equals(Constants.EMPTY_STRING)) {
+					String[] elements = tempCon.split(",");
+					for (int i = 0; i < elements.length; i++) {
+						String templateContent = elements[i];
+						if (templateContent.equals(Constants.TEMPLATE_CONTENT_PLACEHOLDER)) {
+							output.append(content);
+						} else {
+							String elementId = templateContent.replace(Constants.ELEMENT_PREFIX, Constants.EMPTY_STRING)
+									.replace(Constants.ELEMENT_FUNCTION_START, Constants.EMPTY_STRING)
+									.replace(Constants.ELEMENT_FUNCTION_END, Constants.EMPTY_STRING);
+							HashMap<String, String> eleResult = mapper.search(elementId, Constants.TABLE_CONTENT);
+							if (eleResult != null) {
+								String eleContent = eleResult.get("content");
+								output.append(eleContent != null ? eleContent : Constants.EMPTY_STRING);
+							}
+						}
 					}
 				}
 			}
