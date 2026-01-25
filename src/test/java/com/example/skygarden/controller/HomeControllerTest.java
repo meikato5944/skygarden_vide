@@ -18,7 +18,6 @@ import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
 import org.springframework.ui.Model;
 
-import com.example.skygarden.bean.DirectoryNodeBean;
 import com.example.skygarden.constants.Constants;
 import com.example.skygarden.logic.Content;
 import com.example.skygarden.logic.Setting;

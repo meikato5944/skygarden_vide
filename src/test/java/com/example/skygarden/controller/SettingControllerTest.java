@@ -17,7 +17,6 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.example.skygarden.bean.SettingColorElementsBean;
-import com.example.skygarden.constants.Constants;
 import com.example.skygarden.logic.Setting;
 
 import jakarta.servlet.http.HttpServletRequest;

@@ -2,8 +2,6 @@ package com.example.skygarden.logic;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import java.sql.Connection;
-import java.sql.SQLException;
 import java.util.HashMap;
 
 import org.junit.jupiter.api.Test;
@@ -17,15 +15,16 @@ import org.mockito.junit.jupiter.MockitoExtension;
  * このテストは、メソッドの存在確認と基本的な動作確認を行います。
  */
 @ExtendWith(MockitoExtension.class)
+@SuppressWarnings("deprecation")
 class DBTest {
 
     @Test
     void testGetConnection() {
         DB db = new DB();
-        Connection conn = db.getConnection();
-        
         // データベース接続が利用できない場合、nullが返される可能性がある
         // このテストは、メソッドが例外を投げないことを確認する
+        db.getConnection();
+        
         assertNotNull(db);
     }
 

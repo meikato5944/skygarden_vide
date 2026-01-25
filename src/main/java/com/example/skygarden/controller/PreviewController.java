@@ -34,7 +34,7 @@ import lombok.extern.slf4j.Slf4j;
  * プレビュー処理フロー:
  * 1. テンプレートが指定されている場合、テンプレートのヘッダー情報を取得
  * 2. コンテンツ本文にテンプレートと構成要素を適用
- * 3. [movie id=XXX] タグをYouTube埋め込みコードに変換
+ * 3. [movie id=] タグをYouTube埋め込みコードに変換
  * 4. preview.html テンプレートに ###title###, ###head###, ###content### を挿入
  * 5. 完成したHTMLをレスポンスとして返却
  * 

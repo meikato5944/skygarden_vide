@@ -4,7 +4,6 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
-import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import org.junit.jupiter.api.BeforeEach;

@@ -18,7 +18,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.example.skygarden.config.AppProperties;
 import com.example.skygarden.config.AppProperties.File;
-import com.example.skygarden.constants.Constants;
 import com.example.skygarden.logic.Content;
 
 import jakarta.servlet.http.HttpServletRequest;

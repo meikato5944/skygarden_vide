@@ -2,6 +2,7 @@ package com.example.skygarden.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.lang.NonNull;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
@@ -41,7 +42,7 @@ public class CorsConfig {
              * @param registry CORSレジストリ
              */
             @Override
-            public void addCorsMappings(CorsRegistry registry) {
+            public void addCorsMappings(@NonNull CorsRegistry registry) {
                 registry.addMapping(Constants.PATH_WEBADMIN + "/**")
                         .allowedOrigins("http://localhost:8080") // 同一オリジンなのでlocalhost:8080
                         .allowedMethods("GET", "POST", "PUT", "DELETE")

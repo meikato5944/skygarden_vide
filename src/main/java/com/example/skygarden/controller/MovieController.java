@@ -47,7 +47,7 @@ import lombok.extern.slf4j.Slf4j;
  * - content: YouTubeビデオID
  * 
  * コンテンツでの使用方法:
- * コンテンツ内で [movie id=XXX] タグを使用すると、
+ * コンテンツ内で {@literal [movie id=]} タグを使用すると、
  * Content.convertMovieTags() メソッドによりYouTube埋め込みコードに変換されます。
  * 
  * @see ContentMapper データベース操作

@@ -36,7 +36,7 @@ import jakarta.servlet.http.HttpSession;
  * - ページネーション
  * - URL重複チェック
  * - URLディレクトリツリーの生成
- * - [movie id=XXX] タグのYouTube埋め込みコード変換
+ * - [movie id=] タグのYouTube埋め込みコード変換
  * 
  * テンプレートシステム:
  * テンプレートのcontentフィールドには構成要素の配置が保存されます。

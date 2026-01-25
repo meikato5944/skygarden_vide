@@ -5,8 +5,6 @@ import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.Test;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 
-import com.example.skygarden.constants.Constants;
-
 /**
  * CorsConfigのテストクラス
  */

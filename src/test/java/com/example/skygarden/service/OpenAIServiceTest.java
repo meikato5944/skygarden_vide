@@ -1,17 +1,16 @@
 package com.example.skygarden.service;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
 import java.io.IOException;
-import java.util.HashMap;
+import java.net.http.HttpClient;
+import java.time.Duration;
 import java.util.Map;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
@@ -27,12 +26,23 @@ class OpenAIServiceTest {
     @Mock
     private Setting setting;
 
-    @InjectMocks
     private OpenAIService openAIService;
 
     @BeforeEach
     void setUp() {
-        // デフォルトのモック設定
+        // HTTPクライアントを初期化してOpenAIServiceを作成
+        HttpClient httpClient = HttpClient.newBuilder()
+            .connectTimeout(Duration.ofSeconds(60))
+            .build();
+        openAIService = new OpenAIService(httpClient);
+        // Settingをリフレクションで設定（@Autowiredフィールド）
+        try {
+            java.lang.reflect.Field settingField = OpenAIService.class.getDeclaredField("setting");
+            settingField.setAccessible(true);
+            settingField.set(openAIService, setting);
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to set setting field", e);
+        }
     }
 
     @Test

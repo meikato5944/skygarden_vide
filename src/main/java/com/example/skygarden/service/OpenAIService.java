@@ -45,6 +45,9 @@ public class OpenAIService {
 	@Autowired
 	private Setting setting;
 	
+	/** HTTPクライアント（テスト用に注入可能） */
+	private HttpClient httpClient;
+	
 	/** OpenAI APIのエンドポイントURL */
 	private static final String OPENAI_API_URL = "https://api.openai.com/v1/chat/completions";
 	
@@ -53,6 +56,26 @@ public class OpenAIService {
 	
 	/** JSON解析用のObjectMapper */
 	private final ObjectMapper objectMapper = new ObjectMapper();
+	
+	/**
+	 * デフォルトコンストラクタ
+	 * HTTPクライアントを初期化します
+	 */
+	public OpenAIService() {
+		this.httpClient = HttpClient.newBuilder()
+			.connectTimeout(Duration.ofSeconds(TIMEOUT_SECONDS))
+			.build();
+	}
+	
+	/**
+	 * テスト用コンストラクタ
+	 * HTTPクライアントを注入可能にします
+	 * 
+	 * @param httpClient HTTPクライアント
+	 */
+	public OpenAIService(HttpClient httpClient) {
+		this.httpClient = httpClient;
+	}
     
     /**
      * タイトルを生成する
@@ -165,11 +188,6 @@ public class OpenAIService {
         
         String jsonBody = objectMapper.writeValueAsString(requestBody);
         
-        // HTTPクライアントの作成
-        HttpClient client = HttpClient.newBuilder()
-            .connectTimeout(Duration.ofSeconds(TIMEOUT_SECONDS))
-            .build();
-        
         // HTTPリクエストの作成
         HttpRequest request = HttpRequest.newBuilder()
             .uri(URI.create(OPENAI_API_URL))
@@ -182,7 +200,7 @@ public class OpenAIService {
         // API呼び出し
         HttpResponse<String> response;
         try {
-            response = client.send(request, HttpResponse.BodyHandlers.ofString());
+            response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
         } catch (java.net.http.HttpTimeoutException e) {
             // #region agent log
             try {
