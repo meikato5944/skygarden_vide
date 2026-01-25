@@ -11,6 +11,8 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import lombok.extern.slf4j.Slf4j;
+
 import com.example.skygarden.bean.DirectoryNodeBean;
 import com.example.skygarden.config.AppProperties;
 import com.example.skygarden.constants.Constants;
@@ -51,6 +53,7 @@ import jakarta.servlet.http.HttpSession;
  * @see ContentMapper データベース操作
  * @see AppProperties アプリケーション設定
  */
+@Slf4j
 @Service
 public class Content {
 	
@@ -273,17 +276,18 @@ public class Content {
 				//過去日、現在日時、空だった場合に公開(未来日はバッチで公開)
 				if (publishParseResult == 1 || publishParseResult == 0 || schedule_published.equals(Constants.EMPTY_STRING)) {
 					try {
-						// contentテーブルにレコードが存在するか確認（外部キー制約違反を防ぐため）
-						HashMap<String, String> createdContent = mapper.search(String.valueOf(id), Constants.TABLE_CONTENT);
-						if (createdContent == null) {
-							throw new RuntimeException("contentテーブルにレコードが見つかりません。ID: " + id);
-						}
-						
+						// mapper.create()が成功した時点でcontentテーブルにレコードは存在している
+						// 外部キー制約違反を防ぐため、直接createPublic()を実行
+						// エラーが発生した場合は、メインの登録は成功しているので例外をキャッチして処理を継続
 						mapper.createPublic(id, nowTime, nowTime, name, name, url, title, head, content, type, elementcolor, template, schedule_published, schedule_unpublished, published);
 						isPublished = true;
+					} catch (org.springframework.dao.DataIntegrityViolationException e) {
+						// 外部キー制約違反が発生した場合（contentテーブルにレコードが存在しない場合）
+						// メインの登録は成功しているので、ログに記録して処理を継続
+						log.warn("content_publicテーブルへの登録に失敗しました（ID: {}）。contentテーブルへの登録は成功しています。", id, e);
 					} catch (Exception e) {
-						// 公開テーブルへの登録で例外が発生しても、メインの登録は成功している
-						e.printStackTrace();
+						// その他の例外が発生した場合も、メインの登録は成功している
+						log.warn("content_publicテーブルへの登録で例外が発生しました（ID: {}）。contentテーブルへの登録は成功しています。", id, e);
 					}
 				}
 			}
