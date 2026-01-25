@@ -41,9 +41,12 @@
 		UPDATE user set name = #{name}, password = #{password}, email = #{email}, admin = #{admin} WHERE id = #{id}
 	</update>
 
-	<insert id="create" useGeneratedKeys="true" keyProperty="id">
+	<insert id="create">
 		INSERT INTO content (created, updated, created_by, updated_by, url, title, head, content, type, elementcolor, template, schedule_published, schedule_unpublished, publishflg_keep) 
 		VALUE(#{created}, #{updated}, #{created_by}, #{updated_by}, #{url}, #{title}, #{head}, #{content}, #{type}, #{elementcolor}, #{template}, #{schedule_published}, #{schedule_unpublished}, #{publishflg_keep})
+		<selectKey resultType="int" order="AFTER">
+			SELECT LAST_INSERT_ID()
+		</selectKey>
 	</insert>
 
 	<insert id="createPublic">

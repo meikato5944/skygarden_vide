@@ -265,6 +265,43 @@ public class ContentController {
 	}
 
 	/**
+	 * 複数のコンテンツを一括削除する
+	 * 
+	 * @param ids 削除するコンテンツIDの配列
+	 * @param mode モード（削除後のリダイレクト先を決定する）
+	 * @param request HTTPリクエスト
+	 * @param response HTTPレスポンス
+	 * @throws IOException IO例外
+	 */
+	@PostMapping(Constants.API_BATCH_DELETE_POST)
+	@ResponseBody
+	public void batchDelete(@RequestParam String[] ids, @RequestParam String mode, HttpServletRequest request, HttpServletResponse response) throws IOException {
+		HttpSession session = request.getSession(true);
+		if (ids != null && ids.length > 0) {
+			content.doBatchDelete(ids, mode, response, session);
+		}
+	}
+
+	/**
+	 * 複数のコンテンツを一括コピーする
+	 * 
+	 * @param ids コピーするコンテンツIDの配列
+	 * @param urls URLの配列（各コンテンツに対応するURL）
+	 * @param mode モード（コピー後のリダイレクト先を決定する）
+	 * @param request HTTPリクエスト
+	 * @param response HTTPレスポンス
+	 * @throws IOException IO例外
+	 */
+	@PostMapping(Constants.API_BATCH_COPY_POST)
+	@ResponseBody
+	public void batchCopy(@RequestParam String[] ids, @RequestParam(required = false) String[] urls, @RequestParam String mode, HttpServletRequest request, HttpServletResponse response) throws IOException {
+		HttpSession session = request.getSession(true);
+		if (ids != null && ids.length > 0) {
+			content.doBatchCopy(ids, urls, mode, response, session);
+		}
+	}
+
+	/**
 	 * コンテンツ一覧を取得する
 	 * ソート順とページネーションに対応している
 	 * キーワード検索にも対応

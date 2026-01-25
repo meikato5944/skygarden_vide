@@ -154,8 +154,10 @@ class RequestRoutingFilterTest {
         // テストでは、テンプレートファイルが存在することを前提とする
         filter.doFilterInternal(request, response, filterChain);
 
-        verify(response).setContentType("text/css");
-        verify(writer).write(anyString());
+        verify(response).setContentType("text/css; charset=UTF-8");
+        verify(response).setCharacterEncoding("UTF-8");
+        verify(writer).write("body { color: red; }");
+        verify(writer).close();
     }
 
     @Test
@@ -173,8 +175,10 @@ class RequestRoutingFilterTest {
 
         filter.doFilterInternal(request, response, filterChain);
 
-        verify(response).setContentType("application/javascript");
-        verify(writer).write(anyString());
+        verify(response).setContentType("application/javascript; charset=UTF-8");
+        verify(response).setCharacterEncoding("UTF-8");
+        verify(writer).write("console.log('test');");
+        verify(writer).close();
     }
 
     @Test
@@ -288,10 +292,15 @@ class RequestRoutingFilterTest {
         when(handlerMapping.getHandler(request)).thenReturn(null);
         when(mapper.searchByUrl("test/page", Constants.TABLE_CONTENT_PUBLIC))
             .thenThrow(new RuntimeException("DB error"));
+        when(response.isCommitted()).thenReturn(false);
+        when(response.getWriter()).thenReturn(writer);
 
         filter.doFilterInternal(request, response, filterChain);
 
-        // 例外が発生してもフィルターチェーンは継続される
-        verify(filterChain).doFilter(request, response);
+        // 例外が発生した場合は500エラーを返す
+        verify(response).setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+        verify(response).setContentType("text/plain; charset=UTF-8");
+        verify(writer).write(anyString());
+        verify(writer).close();
     }
 }

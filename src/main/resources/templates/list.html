@@ -17,12 +17,34 @@
                 <div>
                     <h1 class="ms-1 mb-0" th:text="${screenName} + '一覧'"></h1>
                 </div>
-                <div class="sky-button-newCreate">
-                    <a th:href="@{'/content?mode=' + ${mode}}">
-                        <button class="btn btn-warning sky-bg-4 px-4 py-2 fw-bold" style="font-size: 1.1rem;">
-                            <span>newCreate</span>
+                <div class="d-flex gap-2">
+                    <div class="sky-button-batchActions">
+                        <button id="startBatchDeleteBtn" class="btn btn-danger sky-bg-4 px-3 py-2 fw-bold" style="font-size: 1rem;">
+                            <span>一括削除</span>
                         </button>
-                    </a>
+                        <button id="startBatchCopyBtn" class="btn btn-primary sky-bg-4 px-3 py-2 fw-bold" style="font-size: 1rem;">
+                            <span>コピー</span>
+                        </button>
+                        <button id="selectAllBtn" class="btn btn-secondary sky-bg-4 px-3 py-2 fw-bold" style="font-size: 1rem; display: none;">
+                            <span>一括選択</span>
+                        </button>
+                        <button id="batchDeleteBtn" class="btn btn-danger sky-bg-4 px-3 py-2 fw-bold" style="font-size: 1rem; display: none;" disabled>
+                            <span>削除実行</span>
+                        </button>
+                        <button id="batchCopyBtn" class="btn btn-primary sky-bg-4 px-3 py-2 fw-bold" style="font-size: 1rem; display: none;" disabled>
+                            <span>コピー実行</span>
+                        </button>
+                        <button id="cancelBatchBtn" class="btn btn-secondary sky-bg-4 px-3 py-2 fw-bold" style="font-size: 1rem; display: none;">
+                            <span>キャンセル</span>
+                        </button>
+                    </div>
+                    <div class="sky-button-newCreate">
+                        <a th:href="@{'/content?mode=' + ${mode}}">
+                            <button class="btn btn-warning sky-bg-4 px-4 py-2 fw-bold" style="font-size: 1.1rem;">
+                                <span>newCreate</span>
+                            </button>
+                        </a>
+                    </div>
                 </div>
             </div>
             <div th:if="${registerMessage != null and registerMessage != ''}" class="ms-2 mb-3" th:text="${registerMessage}"></div>
@@ -53,9 +75,11 @@
             <div th:if="${keyword != null and keyword != ''}" class="mb-3">
                 <span class="text-muted">検索キーワード: "<span th:text="${keyword}"></span>"</span>
             </div>
-            <div th:each="result : ${results}">
-                <a th:href="@{'/content?mode=' + ${mode} + '&id=' + ${result.id}}">
-                    <div class="sky-list-card" th:classappend="${mode == 'image' or mode == 'movie'} ? 'sky-list-card-image' : ''">
+            <div th:each="result : ${results}" class="d-flex align-items-start mb-2">
+                <div class="flex-grow-1 content-card-wrapper" th:data-content-id="${result.id}" th:data-mode="${mode}">
+                    <div class="sky-list-card content-selectable-card" 
+                         th:classappend="${mode == 'image' or mode == 'movie'} ? 'sky-list-card-image' : ''"
+                         style="cursor: pointer;">
                         <!-- 画像モードの場合はサムネイルを表示 -->
                         <div th:if="${mode == 'image'}" class="sky-list-thumbnail">
                             <img th:src="@{'/' + ${result.url}}" 
@@ -81,7 +105,10 @@
                             </div>
                         </div>
                     </div>
-                </a>
+                    <a th:href="@{'/content?mode=' + ${mode} + '&id=' + ${result.id}}" 
+                       class="content-edit-link" 
+                       style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; z-index: 1;"></a>
+                </div>
             </div>
             <nav aria-label="Page navigation example">
                 <ul class="pagination justify-content-center align-items-center mt-5" th:utext="${pagerOutput}"></ul>
@@ -92,10 +119,70 @@
     <!-- Footer -->
     <footer th:replace="~{fragments/common :: footer}"></footer>
     
+    <!-- 確認モーダル -->
+    <div class="modal fade" id="confirmDeleteModal" tabindex="-1" aria-labelledby="confirmDeleteModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="confirmDeleteModalLabel">一括削除の確認</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p id="deleteCountMessage"></p>
+                    <p class="text-danger">この操作は取り消せません。本当に削除しますか？</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">キャンセル</button>
+                    <button type="button" class="btn btn-danger" id="confirmDeleteBtn">削除する</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- コピーURL入力モーダル -->
+    <div class="modal fade" id="copyUrlModal" tabindex="-1" aria-labelledby="copyUrlModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="copyUrlModalLabel">コピー対象のURLを入力</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p id="copyCountMessage"></p>
+                    <p class="text-muted small mb-3">各コンテンツのURLを入力してください。空欄の場合はURLなしでコピーされます。</p>
+                    <div id="urlInputContainer"></div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">キャンセル</button>
+                    <button type="button" class="btn btn-primary" id="confirmCopyBtn">コピー実行</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
     <style>
         .sky-search-input::placeholder {
             color: #999;
             opacity: 0.5;
+        }
+        .content-card-wrapper {
+            position: relative;
+        }
+        .content-selectable-card {
+            transition: box-shadow 0.2s ease;
+        }
+        .content-selectable-card.selected {
+            box-shadow: 0 0 0 .25rem rgba(13, 110, 253, .25) !important;
+        }
+        .content-edit-link {
+            display: block;
+        }
+        .content-card-wrapper.batch-mode .content-edit-link {
+            pointer-events: none;
+            z-index: 0;
+        }
+        .content-card-wrapper.batch-mode .content-selectable-card {
+            z-index: 2;
         }
     </style>
     
@@ -111,6 +198,387 @@
             }
             window.location.href = url;
         }
+        
+        // 一括削除・コピー機能
+        (function() {
+            var startBatchDeleteBtn = document.getElementById('startBatchDeleteBtn');
+            var startBatchCopyBtn = document.getElementById('startBatchCopyBtn');
+            var selectAllBtn = document.getElementById('selectAllBtn');
+            var batchDeleteBtn = document.getElementById('batchDeleteBtn');
+            var batchCopyBtn = document.getElementById('batchCopyBtn');
+            var cancelBatchBtn = document.getElementById('cancelBatchBtn');
+            var contentCards = document.querySelectorAll('.content-selectable-card');
+            var contentWrappers = document.querySelectorAll('.content-card-wrapper');
+            var confirmDeleteModal = new bootstrap.Modal(document.getElementById('confirmDeleteModal'));
+            var copyUrlModal = new bootstrap.Modal(document.getElementById('copyUrlModal'));
+            var confirmDeleteBtn = document.getElementById('confirmDeleteBtn');
+            var confirmCopyBtn = document.getElementById('confirmCopyBtn');
+            var deleteCountMessage = document.getElementById('deleteCountMessage');
+            var copyCountMessage = document.getElementById('copyCountMessage');
+            var urlInputContainer = document.getElementById('urlInputContainer');
+            var isAllSelected = false;
+            var isBatchMode = false;
+            var batchModeType = ''; // 'delete' or 'copy'
+            var selectedIds = new Set();
+            var selectedData = new Map(); // id -> {title, url}
+            
+            // 一括削除モードの開始
+            function startBatchDeleteMode() {
+                batchModeType = 'delete';
+                startBatchMode();
+                batchDeleteBtn.style.display = 'inline-block';
+                batchCopyBtn.style.display = 'none';
+                updateBatchButtons();
+            }
+            
+            // コピーモードの開始
+            function startBatchCopyMode() {
+                batchModeType = 'copy';
+                startBatchMode();
+                batchDeleteBtn.style.display = 'none';
+                batchCopyBtn.style.display = 'inline-block';
+                updateBatchButtons();
+            }
+            
+            // 一括操作モードの開始
+            function startBatchMode() {
+                isBatchMode = true;
+                // すべてのラッパーにbatch-modeクラスを追加
+                contentWrappers.forEach(function(wrapper) {
+                    wrapper.classList.add('batch-mode');
+                    // コンテンツ情報を取得
+                    var id = wrapper.getAttribute('data-content-id');
+                    var card = wrapper.querySelector('.content-selectable-card');
+                    var titleEl = card.querySelector('h3');
+                    var title = titleEl ? titleEl.textContent.trim() : '';
+                    // URLは "URL: " の後のspanから取得
+                    var urlSection = card.querySelector('.d-flex.justify-content-between');
+                    var url = '';
+                    if (urlSection) {
+                        var urlSpan = urlSection.querySelector('span');
+                        if (urlSpan && urlSpan.previousSibling && urlSpan.previousSibling.textContent.includes('URL:')) {
+                            url = urlSpan.textContent.trim();
+                        }
+                    }
+                    selectedData.set(id, {title: title, url: url});
+                });
+                // ボタンの表示/非表示を切り替え
+                startBatchDeleteBtn.style.display = 'none';
+                startBatchCopyBtn.style.display = 'none';
+                selectAllBtn.style.display = 'inline-block';
+                cancelBatchBtn.style.display = 'inline-block';
+            }
+            
+            // 一括操作モードの終了
+            function endBatchMode() {
+                isBatchMode = false;
+                batchModeType = '';
+                // すべての選択を解除
+                contentCards.forEach(function(card) {
+                    card.classList.remove('selected');
+                });
+                selectedIds.clear();
+                selectedData.clear();
+                // すべてのラッパーからbatch-modeクラスを削除
+                contentWrappers.forEach(function(wrapper) {
+                    wrapper.classList.remove('batch-mode');
+                });
+                // ボタンの表示/非表示を切り替え
+                startBatchDeleteBtn.style.display = 'inline-block';
+                startBatchCopyBtn.style.display = 'inline-block';
+                selectAllBtn.style.display = 'none';
+                batchDeleteBtn.style.display = 'none';
+                batchCopyBtn.style.display = 'none';
+                cancelBatchBtn.style.display = 'none';
+                isAllSelected = false;
+                selectAllBtn.textContent = '一括選択';
+                updateBatchButtons();
+            }
+            
+            // コンテンツカードの選択状態を切り替え
+            function toggleContentSelection(wrapper) {
+                if (!isBatchMode) return;
+                
+                var card = wrapper.querySelector('.content-selectable-card');
+                var contentId = wrapper.getAttribute('data-content-id');
+                
+                if (card.classList.contains('selected')) {
+                    card.classList.remove('selected');
+                    selectedIds.delete(contentId);
+                } else {
+                    card.classList.add('selected');
+                    selectedIds.add(contentId);
+                }
+                updateBatchButtons();
+                updateSelectAllButton();
+            }
+            
+            // ボタンの状態を更新
+            function updateBatchButtons() {
+                var count = selectedIds.size;
+                if (batchModeType === 'delete') {
+                    batchDeleteBtn.disabled = count === 0;
+                    if (count > 0) {
+                        batchDeleteBtn.textContent = '削除実行 (' + count + ')';
+                    } else {
+                        batchDeleteBtn.textContent = '削除実行';
+                    }
+                } else if (batchModeType === 'copy') {
+                    batchCopyBtn.disabled = count === 0;
+                    if (count > 0) {
+                        batchCopyBtn.textContent = 'コピー実行 (' + count + ')';
+                    } else {
+                        batchCopyBtn.textContent = 'コピー実行';
+                    }
+                }
+            }
+            
+            // 一括選択ボタンの状態を更新
+            function updateSelectAllButton() {
+                var allSelected = contentWrappers.length > 0 && 
+                                  Array.from(contentWrappers).every(function(wrapper) {
+                                      var id = wrapper.getAttribute('data-content-id');
+                                      return selectedIds.has(id);
+                                  });
+                isAllSelected = allSelected;
+                selectAllBtn.textContent = isAllSelected ? '選択解除' : '一括選択';
+            }
+            
+            // 一括削除開始ボタンの処理
+            startBatchDeleteBtn.addEventListener('click', function() {
+                startBatchDeleteMode();
+            });
+            
+            // コピー開始ボタンの処理
+            startBatchCopyBtn.addEventListener('click', function() {
+                startBatchCopyMode();
+            });
+            
+            // キャンセルボタンの処理
+            cancelBatchBtn.addEventListener('click', function() {
+                endBatchMode();
+            });
+            
+            // 一括選択ボタンの処理
+            selectAllBtn.addEventListener('click', function() {
+                if (!isBatchMode) return;
+                
+                isAllSelected = !isAllSelected;
+                contentWrappers.forEach(function(wrapper) {
+                    var card = wrapper.querySelector('.content-selectable-card');
+                    var contentId = wrapper.getAttribute('data-content-id');
+                    
+                    if (isAllSelected) {
+                        card.classList.add('selected');
+                        selectedIds.add(contentId);
+                    } else {
+                        card.classList.remove('selected');
+                        selectedIds.delete(contentId);
+                    }
+                });
+                selectAllBtn.textContent = isAllSelected ? '選択解除' : '一括選択';
+                updateBatchButtons();
+            });
+            
+            // コンテンツカードのクリック処理
+            contentWrappers.forEach(function(wrapper) {
+                wrapper.addEventListener('click', function(e) {
+                    if (!isBatchMode) return;
+                    // 編集リンクのクリックを防ぐ
+                    e.preventDefault();
+                    e.stopPropagation();
+                    toggleContentSelection(wrapper);
+                });
+            });
+            
+            // 削除実行ボタンの処理
+            batchDeleteBtn.addEventListener('click', function() {
+                if (selectedIds.size === 0) {
+                    alert('削除するコンテンツを選択してください。');
+                    return;
+                }
+                
+                // モーダルに削除数を表示
+                deleteCountMessage.textContent = selectedIds.size + '件のコンテンツを削除します。';
+                confirmDeleteModal.show();
+            });
+            
+            // コピー実行ボタンの処理
+            batchCopyBtn.addEventListener('click', function() {
+                if (selectedIds.size === 0) {
+                    alert('コピーするコンテンツを選択してください。');
+                    return;
+                }
+                
+                // URL入力フォームを生成
+                urlInputContainer.innerHTML = '';
+                var idsArray = Array.from(selectedIds);
+                idsArray.forEach(function(id) {
+                    var data = selectedData.get(id);
+                    var div = document.createElement('div');
+                    div.className = 'mb-3';
+                    div.innerHTML = '<label class="form-label small">' + 
+                        (data.title || 'ID: ' + id) + 
+                        '</label>' +
+                        '<input type="text" class="form-control copy-url-input" ' +
+                        'data-content-id="' + id + '" ' +
+                        'placeholder="URL（空欄可）" />';
+                    urlInputContainer.appendChild(div);
+                });
+                
+                // モーダルにコピー数を表示
+                copyCountMessage.textContent = selectedIds.size + '件のコンテンツをコピーします。';
+                copyUrlModal.show();
+            });
+            
+            // 確認モーダルの削除実行ボタン
+            confirmDeleteBtn.addEventListener('click', function() {
+                var ids = Array.from(selectedIds);
+                var mode = contentWrappers[0] ? contentWrappers[0].getAttribute('data-mode') : '';
+                
+                // フォームを作成して送信
+                var form = document.createElement('form');
+                form.method = 'POST';
+                form.action = '/webadmin/batch_delete_post';
+                
+                // CSRFトークンがあれば追加（Spring Security使用時）
+                var csrfToken = document.querySelector('meta[name="_csrf"]');
+                if (csrfToken) {
+                    var csrfInput = document.createElement('input');
+                    csrfInput.type = 'hidden';
+                    csrfInput.name = '_csrf';
+                    csrfInput.value = csrfToken.getAttribute('content');
+                    form.appendChild(csrfInput);
+                }
+                
+                // modeパラメータ
+                var modeInput = document.createElement('input');
+                modeInput.type = 'hidden';
+                modeInput.name = 'mode';
+                modeInput.value = mode;
+                form.appendChild(modeInput);
+                
+                // IDパラメータ（複数）
+                ids.forEach(function(id) {
+                    var idInput = document.createElement('input');
+                    idInput.type = 'hidden';
+                    idInput.name = 'ids';
+                    idInput.value = id;
+                    form.appendChild(idInput);
+                });
+                
+                document.body.appendChild(form);
+                form.submit();
+            });
+            
+            // 確認モーダルのコピー実行ボタン
+            confirmCopyBtn.addEventListener('click', function() {
+                var ids = Array.from(selectedIds);
+                var urls = [];
+                var urlInputs = document.querySelectorAll('.copy-url-input');
+                urlInputs.forEach(function(input) {
+                    urls.push(input.value || '');
+                });
+                var mode = contentWrappers[0] ? contentWrappers[0].getAttribute('data-mode') : '';
+                
+                // フォームを作成して送信
+                var form = document.createElement('form');
+                form.method = 'POST';
+                form.action = '/webadmin/batch_copy_post';
+                
+                // CSRFトークンがあれば追加（Spring Security使用時）
+                var csrfToken = document.querySelector('meta[name="_csrf"]');
+                if (csrfToken) {
+                    var csrfInput = document.createElement('input');
+                    csrfInput.type = 'hidden';
+                    csrfInput.name = '_csrf';
+                    csrfInput.value = csrfToken.getAttribute('content');
+                    form.appendChild(csrfInput);
+                }
+                
+                // modeパラメータ
+                var modeInput = document.createElement('input');
+                modeInput.type = 'hidden';
+                modeInput.name = 'mode';
+                modeInput.value = mode;
+                form.appendChild(modeInput);
+                
+                // IDパラメータ（複数）
+                ids.forEach(function(id) {
+                    var idInput = document.createElement('input');
+                    idInput.type = 'hidden';
+                    idInput.name = 'ids';
+                    idInput.value = id;
+                    form.appendChild(idInput);
+                });
+                
+                // URLパラメータ（複数）
+                urls.forEach(function(url) {
+                    var urlInput = document.createElement('input');
+                    urlInput.type = 'hidden';
+                    urlInput.name = 'urls';
+                    urlInput.value = url;
+                    form.appendChild(urlInput);
+                });
+                
+                document.body.appendChild(form);
+                form.submit();
+            });
+            
+            // 確認モーダルのコピー実行ボタン
+            confirmCopyBtn.addEventListener('click', function() {
+                var ids = Array.from(selectedIds);
+                var urls = [];
+                var urlInputs = document.querySelectorAll('.copy-url-input');
+                urlInputs.forEach(function(input) {
+                    urls.push(input.value || '');
+                });
+                var mode = contentWrappers[0] ? contentWrappers[0].getAttribute('data-mode') : '';
+                
+                // フォームを作成して送信
+                var form = document.createElement('form');
+                form.method = 'POST';
+                form.action = '/webadmin/batch_copy_post';
+                
+                // CSRFトークンがあれば追加（Spring Security使用時）
+                var csrfToken = document.querySelector('meta[name="_csrf"]');
+                if (csrfToken) {
+                    var csrfInput = document.createElement('input');
+                    csrfInput.type = 'hidden';
+                    csrfInput.name = '_csrf';
+                    csrfInput.value = csrfToken.getAttribute('content');
+                    form.appendChild(csrfInput);
+                }
+                
+                // modeパラメータ
+                var modeInput = document.createElement('input');
+                modeInput.type = 'hidden';
+                modeInput.name = 'mode';
+                modeInput.value = mode;
+                form.appendChild(modeInput);
+                
+                // IDパラメータ（複数）
+                ids.forEach(function(id) {
+                    var idInput = document.createElement('input');
+                    idInput.type = 'hidden';
+                    idInput.name = 'ids';
+                    idInput.value = id;
+                    form.appendChild(idInput);
+                });
+                
+                // URLパラメータ（複数）
+                urls.forEach(function(url) {
+                    var urlInput = document.createElement('input');
+                    urlInput.type = 'hidden';
+                    urlInput.name = 'urls';
+                    urlInput.value = url;
+                    form.appendChild(urlInput);
+                });
+                
+                document.body.appendChild(form);
+                form.submit();
+            });
+        })();
     </script>
 </body>
 </html>

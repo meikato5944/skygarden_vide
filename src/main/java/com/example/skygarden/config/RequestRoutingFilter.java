@@ -119,7 +119,7 @@ public class RequestRoutingFilter extends OncePerRequestFilter {
 				contentPath = contentPath.substring(1);
 			}
 			HashMap<String, String> result = mapper.searchByUrl(contentPath, Constants.TABLE_CONTENT_PUBLIC);
-			if (result != null && !result.isEmpty() && !Constants.EMPTY_STRING.equals(result.get("id"))) {
+			if (result != null && !result.isEmpty() && result.get("id") != null && !Constants.EMPTY_STRING.equals(result.get("id"))) {
 				String id = result.get("id");
 				String type = result.get("type");
 				String head = Constants.EMPTY_STRING;
@@ -133,13 +133,27 @@ public class RequestRoutingFilter extends OncePerRequestFilter {
 					contentResult = content.displayContent(id);
 					response.setContentType("text/html; charset=UTF-8");
 				} else if (type.equals(Constants.CONTENT_TYPE_STYLESHEET)) {
-					originalFilePath = rootpath + "/original.stylesheet.html";
+					// CSSは直接コンテンツを返す（テンプレートファイルは不要）
 					contentResult = content.getStylesheet(id, Constants.TABLE_CONTENT_PUBLIC);
-					response.setContentType("text/css");
+					if (contentResult == null) {
+						contentResult = Constants.EMPTY_STRING;
+					}
+					response.setContentType("text/css; charset=UTF-8");
+					response.setCharacterEncoding("UTF-8");
+					response.getWriter().write(contentResult);
+					response.getWriter().close();
+					return;
 				} else if (type.equals(Constants.CONTENT_TYPE_SCRIPT)) {
-					originalFilePath = rootpath + "/original.script.html";
+					// JavaScriptは直接コンテンツを返す（テンプレートファイルは不要）
 					contentResult = content.getContent(id, Constants.TABLE_CONTENT_PUBLIC);
-					response.setContentType("application/javascript");
+					if (contentResult == null) {
+						contentResult = Constants.EMPTY_STRING;
+					}
+					response.setContentType("application/javascript; charset=UTF-8");
+					response.setCharacterEncoding("UTF-8");
+					response.getWriter().write(contentResult);
+					response.getWriter().close();
+					return;
 				} else if (type.equals(Constants.CONTENT_TYPE_IMAGE)) {
 					// 画像ファイルの配信
 					String savedFileName = result.get("content");
@@ -215,6 +229,23 @@ public class RequestRoutingFilter extends OncePerRequestFilter {
 				}
 				
 				String original = CommonProc.readFile(originalFilePath);
+				if (original == null || original.isEmpty()) {
+					log.error("[ContentPage Phase Error] Failed to read template file: " + originalFilePath);
+					response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+					response.setContentType("text/plain; charset=UTF-8");
+					response.getWriter().write("Template file not found or empty: " + originalFilePath);
+					response.getWriter().close();
+					return;
+				}
+				if (contentResult == null) {
+					contentResult = Constants.EMPTY_STRING;
+				}
+				if (title == null) {
+					title = Constants.EMPTY_STRING;
+				}
+				if (head == null) {
+					head = Constants.EMPTY_STRING;
+				}
 				original = original.replaceAll(Constants.TEMPLATE_TITLE_PLACEHOLDER, title);
 				original = original.replaceAll(Constants.TEMPLATE_HEAD_PLACEHOLDER, head);
 				original = original.replaceAll(Constants.TEMPLATE_CONTENT_PLACEHOLDER, contentResult);
@@ -224,7 +255,18 @@ public class RequestRoutingFilter extends OncePerRequestFilter {
 				return;
 			}
 		} catch (Exception e) {
-			log.info("[ContentPage Phase Error] " + e.toString());
+			log.error("[ContentPage Phase Error] " + e.toString(), e);
+			// エラーが発生した場合は500エラーを返す
+			try {
+				if (!response.isCommitted()) {
+					response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+					response.setContentType("text/plain; charset=UTF-8");
+					response.getWriter().write("Internal Server Error: " + e.getMessage());
+					response.getWriter().close();
+				}
+			} catch (IOException ioException) {
+				log.error("Failed to write error response", ioException);
+			}
 		}
 		// 3.template/error/404.html
 		filterChain.doFilter(request, response);

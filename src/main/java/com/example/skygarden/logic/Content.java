@@ -229,16 +229,26 @@ public class Content {
 		} else {
 			schedule_unpublished = schedule_unpublished.replaceAll("/", "-").replaceAll("T", " ");
 		}
+		boolean dbSuccess = false;
+		int id = 0;
 		try {
 			String nowForCompare = CommonProc.createNow().replaceAll("/", "-");
 			SimpleDateFormat sdf = new SimpleDateFormat(Constants.DATE_FORMAT_DATETIME);
 			int publishParseResult = 0;
 			int unpublishParseResult = 0;
-			if (!schedule_published.equals(Constants.EMPTY_STRING)) {
-				publishParseResult = sdf.parse(nowForCompare).compareTo(sdf.parse(schedule_published));
-			}
-			if (!schedule_unpublished.equals(Constants.EMPTY_STRING)) {
-				unpublishParseResult = sdf.parse(nowForCompare).compareTo(sdf.parse(schedule_unpublished));
+			// 日付パース処理で例外が発生した場合は日付を空欄にして処理を続行
+			try {
+				if (!schedule_published.equals(Constants.EMPTY_STRING)) {
+					publishParseResult = sdf.parse(nowForCompare).compareTo(sdf.parse(schedule_published));
+				}
+				if (!schedule_unpublished.equals(Constants.EMPTY_STRING)) {
+					unpublishParseResult = sdf.parse(nowForCompare).compareTo(sdf.parse(schedule_unpublished));
+				}
+			} catch (ParseException e) {
+				// 日付パースエラーは無視（スケジュール日時を空にして登録を続行）
+				e.printStackTrace();
+				schedule_published = Constants.EMPTY_STRING;
+				schedule_unpublished = Constants.EMPTY_STRING;
 			}
 			//公開、非公開共に過去日、現在日は空で登録
 			if (publishParseResult == 1 || publishParseResult == 0) {
@@ -248,13 +258,33 @@ public class Content {
 				schedule_unpublished = Constants.EMPTY_STRING;
 			}
 			String nowTime = CommonProc.createNow();
-			int id = mapper.create(nowTime, nowTime, name, name, url, title, head, content, type, elementcolor, template, schedule_published, schedule_unpublished, published);
+			// データベースへの登録を実行
+			id = mapper.create(nowTime, nowTime, name, name, url, title, head, content, type, elementcolor, template, schedule_published, schedule_unpublished, published);
+			
+			// IDが正しく取得できているか確認
+			if (id <= 0) {
+				throw new RuntimeException("コンテンツの作成に失敗しました。IDが取得できませんでした。");
+			}
+			
+			dbSuccess = true; // データベースへの登録が成功したことを記録
+			
 			boolean isPublished = false;
 			if (published.equals(Constants.FLAG_YES)) {
 				//過去日、現在日時、空だった場合に公開(未来日はバッチで公開)
 				if (publishParseResult == 1 || publishParseResult == 0 || schedule_published.equals(Constants.EMPTY_STRING)) {
-					mapper.createPublic(id, nowTime, nowTime, name, name, url, title, head, content, type, elementcolor, template, schedule_published, schedule_unpublished, published);
-					isPublished = true;
+					try {
+						// contentテーブルにレコードが存在するか確認（外部キー制約違反を防ぐため）
+						HashMap<String, String> createdContent = mapper.search(String.valueOf(id), Constants.TABLE_CONTENT);
+						if (createdContent == null) {
+							throw new RuntimeException("contentテーブルにレコードが見つかりません。ID: " + id);
+						}
+						
+						mapper.createPublic(id, nowTime, nowTime, name, name, url, title, head, content, type, elementcolor, template, schedule_published, schedule_unpublished, published);
+						isPublished = true;
+					} catch (Exception e) {
+						// 公開テーブルへの登録で例外が発生しても、メインの登録は成功している
+						e.printStackTrace();
+					}
 				}
 			}
 			
@@ -278,10 +308,61 @@ public class Content {
 					e.printStackTrace();
 				}
 			}
-			session.setAttribute(Constants.SESSION_REGISTER_MESSAGE, registerMessage);
+			// メッセージ設定で例外が発生しても、データベースへの登録は成功しているので成功メッセージを設定
+			try {
+				session.setAttribute(Constants.SESSION_REGISTER_MESSAGE, registerMessage);
+			} catch (Exception e) {
+				// セッション設定で例外が発生しても、登録は成功しているので成功メッセージを設定
+				e.printStackTrace();
+				try {
+					session.setAttribute(Constants.SESSION_REGISTER_MESSAGE, Constants.MESSAGE_REGISTER_SUCCESS);
+				} catch (Exception e2) {
+					// セッション設定が完全に失敗した場合でも、登録は成功している
+					e2.printStackTrace();
+				}
+			}
+		} catch (org.springframework.dao.DataIntegrityViolationException e) {
+			e.printStackTrace();
+			// データベースへの登録が成功している場合は成功メッセージを設定
+			if (dbSuccess) {
+				try {
+					session.setAttribute(Constants.SESSION_REGISTER_MESSAGE, Constants.MESSAGE_REGISTER_SUCCESS);
+				} catch (Exception e2) {
+					e2.printStackTrace();
+				}
+			} else {
+				// データベースへの登録が失敗した場合のみエラーメッセージを設定
+				String errorMessage = Constants.MESSAGE_REGISTER_FAILED;
+				// データが長すぎる場合のエラーメッセージを追加
+				if (e.getCause() != null && e.getCause().getMessage() != null) {
+					String causeMessage = e.getCause().getMessage();
+					if (causeMessage.contains("Data too long for column")) {
+						errorMessage = "登録に失敗しました。コンテンツが長すぎます。データベースのcontentカラムをLONGTEXTに変更してください。";
+					}
+				}
+				try {
+					session.setAttribute(Constants.SESSION_REGISTER_MESSAGE, errorMessage);
+				} catch (Exception e2) {
+					e2.printStackTrace();
+				}
+			}
 		} catch (Exception e) {
 			e.printStackTrace();
-			session.setAttribute(Constants.SESSION_REGISTER_MESSAGE, Constants.MESSAGE_REGISTER_FAILED);
+			// データベースへの登録が成功している場合は成功メッセージを設定
+			if (dbSuccess) {
+				try {
+					session.setAttribute(Constants.SESSION_REGISTER_MESSAGE, Constants.MESSAGE_REGISTER_SUCCESS);
+				} catch (Exception e2) {
+					e2.printStackTrace();
+				}
+			} else {
+				// データベースへの登録が失敗した場合のみエラーメッセージを設定
+				try {
+					session.setAttribute(Constants.SESSION_REGISTER_MESSAGE, Constants.MESSAGE_REGISTER_FAILED);
+				} catch (Exception e2) {
+					e2.printStackTrace();
+				}
+			}
 		}
 		try {
 			String redirectUrl = getRedirectUrl(type);
@@ -723,6 +804,147 @@ public class Content {
 		}
 		try {
 			String redirectUrl = getRedirectUrl(mode);
+			response.sendRedirect(redirectUrl);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return true;
+	}
+
+	/**
+	 * 複数のコンテンツを一括削除する
+	 * 公開テーブルからも削除する
+	 * 
+	 * @param ids 削除するコンテンツIDの配列
+	 * @param mode モード（削除後のリダイレクト先を決定する）
+	 * @param response HTTPレスポンス
+	 * @param session HTTPセッション
+	 * @return 処理成功時true
+	 */
+	public boolean doBatchDelete(String[] ids, String mode, HttpServletResponse response, HttpSession session) {
+		int successCount = 0;
+		int failCount = 0;
+		try {
+			for (String id : ids) {
+				if (id != null && !id.equals(Constants.EMPTY_STRING)) {
+					try {
+						mapper.delete("content", id);
+						String public_id = mapper.searchContentByAttribute(id, "id", "content_public");
+						if (public_id != null && !public_id.equals(Constants.EMPTY_STRING)) {
+							mapper.delete(Constants.TABLE_CONTENT_PUBLIC, id);
+						}
+						successCount++;
+					} catch (Exception e) {
+						failCount++;
+						e.printStackTrace();
+					}
+				}
+			}
+			if (successCount > 0) {
+				if (failCount > 0) {
+					session.setAttribute(Constants.SESSION_REGISTER_MESSAGE, 
+						successCount + "件の削除に成功しました。" + failCount + "件の削除に失敗しました。");
+				} else {
+					session.setAttribute(Constants.SESSION_REGISTER_MESSAGE, 
+						successCount + "件のコンテンツを削除しました。");
+				}
+			} else {
+				session.setAttribute(Constants.SESSION_REGISTER_MESSAGE, Constants.MESSAGE_DELETE_FAILED);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			session.setAttribute(Constants.SESSION_REGISTER_MESSAGE, Constants.MESSAGE_DELETE_FAILED);
+		}
+		try {
+			String redirectUrl = getRedirectUrl(mode);
+			response.sendRedirect(redirectUrl);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return true;
+	}
+
+	/**
+	 * 複数のコンテンツを一括コピーする
+	 * URLは空欄にして、公開フラグも"0"（非公開）にする
+	 * 
+	 * @param ids コピーするコンテンツIDの配列
+	 * @param urls URLの配列（各コンテンツに対応するURL）
+	 * @param mode モード（コピー後のリダイレクト先を決定する）
+	 * @param response HTTPレスポンス
+	 * @param session HTTPセッション
+	 * @return 処理成功時true
+	 */
+	public boolean doBatchCopy(String[] ids, String[] urls, String mode, HttpServletResponse response, HttpSession session) {
+		String name = (String) session.getAttribute("name");
+		int successCount = 0;
+		int failCount = 0;
+		String copiedType = mode; // デフォルトは現在のmode、コピー元のtypeがあればそれを使用
+		try {
+			String nowTime = CommonProc.createNow();
+			for (int i = 0; i < ids.length; i++) {
+				String id = ids[i];
+				String url = (urls != null && i < urls.length) ? urls[i] : Constants.EMPTY_STRING;
+				
+				if (id != null && !id.equals(Constants.EMPTY_STRING)) {
+					try {
+						// 既存のコンテンツ情報を取得
+						HashMap<String, String> original = mapper.search(id, Constants.TABLE_CONTENT);
+						if (original != null) {
+							// URLの先頭スラッシュを除去
+							if (url != null && !url.equals(Constants.EMPTY_STRING)) {
+								while (url.indexOf("/") == 0) {
+									url = url.substring(1, url.length());
+								}
+							} else {
+								url = Constants.EMPTY_STRING;
+							}
+							
+							String title = original.get("title") != null ? original.get("title") : Constants.EMPTY_STRING;
+							String head = original.get("head") != null ? original.get("head") : Constants.EMPTY_STRING;
+							String content = original.get("content") != null ? original.get("content") : Constants.EMPTY_STRING;
+							String type = original.get("type") != null ? original.get("type") : Constants.EMPTY_STRING;
+							String elementcolor = original.get("elementcolor") != null ? original.get("elementcolor") : Constants.EMPTY_STRING;
+							String template = original.get("template") != null ? original.get("template") : Constants.EMPTY_STRING;
+							
+							// コピー元のtypeを記録（最初のコピー元のtypeを使用）
+							if (i == 0 && type != null && !type.equals(Constants.EMPTY_STRING)) {
+								copiedType = type;
+							}
+							
+							// コピー時は公開フラグを"0"（非公開）、スケジュール日時も空欄にする
+							String published = Constants.FLAG_NO;
+							String schedule_published = Constants.EMPTY_STRING;
+							String schedule_unpublished = Constants.EMPTY_STRING;
+							
+							// 新しいコンテンツを作成（typeはコピー元のtypeを保持）
+							int newId = mapper.create(nowTime, nowTime, name, name, url, title, head, content, type, elementcolor, template, schedule_published, schedule_unpublished, published);
+							successCount++;
+						}
+					} catch (Exception e) {
+						failCount++;
+						e.printStackTrace();
+					}
+				}
+			}
+			if (successCount > 0) {
+				if (failCount > 0) {
+					session.setAttribute(Constants.SESSION_REGISTER_MESSAGE, 
+						successCount + "件のコピーに成功しました。" + failCount + "件のコピーに失敗しました。");
+				} else {
+					session.setAttribute(Constants.SESSION_REGISTER_MESSAGE, 
+						successCount + "件のコンテンツをコピーしました。");
+				}
+			} else {
+				session.setAttribute(Constants.SESSION_REGISTER_MESSAGE, "コピーに失敗しました。");
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			session.setAttribute(Constants.SESSION_REGISTER_MESSAGE, "コピーに失敗しました。");
+		}
+		try {
+			// コピー元のtypeに基づいてリダイレクト（コピー元のtypeがなければ現在のmodeを使用）
+			String redirectUrl = getRedirectUrl(copiedType);
 			response.sendRedirect(redirectUrl);
 		} catch (IOException e) {
 			e.printStackTrace();

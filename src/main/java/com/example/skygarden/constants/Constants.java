@@ -82,6 +82,8 @@ public final class Constants {
 	public static final String API_LOGOUT = "/logout";
 	public static final String API_UPDATE_POST = "/update_post";
 	public static final String API_DELETE_POST = "/delete_post";
+	public static final String API_BATCH_DELETE_POST = "/batch_delete_post";
+	public static final String API_BATCH_COPY_POST = "/batch_copy_post";
 	public static final String API_USER_POST = "/user_post";
 	public static final String API_SETTING_POST = "/setting_post";
 	public static final String API_GET_CONTENT = "/getcontent";

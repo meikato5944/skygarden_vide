@@ -209,6 +209,12 @@ public class HomeController {
             } else if (mode.equals(Constants.CONTENT_TYPE_MOVIE)) {
                 // 動画モード
                 return handleMovieMode(head, schedule_published, schedule_unpublished, publishflg_keep, model);
+            } else if (mode.equals(Constants.CONTENT_TYPE_STYLESHEET)) {
+                // CSSモード
+                return handleStylesheetMode(schedule_published, schedule_unpublished, publishflg_keep, model);
+            } else if (mode.equals(Constants.CONTENT_TYPE_SCRIPT)) {
+                // JSモード
+                return handleScriptMode(schedule_published, schedule_unpublished, publishflg_keep, model);
             } else {
                 // コンテンツモード（デフォルト）
                 return handleContentMode(template, schedule_published, schedule_unpublished, publishflg_keep, model);
@@ -391,6 +397,30 @@ public class HomeController {
     }
     
     /**
+     * CSSモードの処理
+     */
+    private String handleStylesheetMode(String schedule_published, String schedule_unpublished, 
+            String publishflg_keep, Model model) {
+        model.addAttribute("schedule_published", schedule_published);
+        model.addAttribute("schedule_unpublished", schedule_unpublished);
+        model.addAttribute("publishflg_keep", publishflg_keep);
+        
+        return "stylesheet-edit";
+    }
+    
+    /**
+     * JSモードの処理
+     */
+    private String handleScriptMode(String schedule_published, String schedule_unpublished, 
+            String publishflg_keep, Model model) {
+        model.addAttribute("schedule_published", schedule_published);
+        model.addAttribute("schedule_unpublished", schedule_unpublished);
+        model.addAttribute("publishflg_keep", publishflg_keep);
+        
+        return "script-edit";
+    }
+    
+    /**
      * モードに応じたテンプレート名を返す
      */
     private String getTemplateByMode(String mode) {
@@ -404,6 +434,10 @@ public class HomeController {
             return "file-edit";
         } else if (Constants.CONTENT_TYPE_MOVIE.equals(mode)) {
             return "movie-edit";
+        } else if (Constants.CONTENT_TYPE_STYLESHEET.equals(mode)) {
+            return "stylesheet-edit";
+        } else if (Constants.CONTENT_TYPE_SCRIPT.equals(mode)) {
+            return "script-edit";
         } else {
             return "content-edit";
         }
