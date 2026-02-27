@@ -93,8 +93,8 @@ public class RequestRoutingFilter extends OncePerRequestFilter {
 	protected void doFilterInternal(@NonNull HttpServletRequest request, @NonNull HttpServletResponse response, @NonNull FilterChain filterChain)
 			throws ServletException, IOException {
 		String path = request.getRequestURI();
-		String contentPath = path;
-		String rootpath = CommonProc.getRootPath();
+		String contentPath = normalizeContentPath(path);
+		String rootPath = CommonProc.getRootPath();
 
 		// /webadmin/** パスは常にコントローラーに渡す（早期リターン）
 		if (path.startsWith(Constants.PATH_WEBADMIN)) {
@@ -102,7 +102,7 @@ public class RequestRoutingFilter extends OncePerRequestFilter {
 			return;
 		}
 
-		//1.Mapping
+		// Step 1: ハンドラーマッピング確認
 		try {
 			HandlerExecutionChain handlerExecutionChain = handlerMapping.getHandler(request);
 			if (handlerExecutionChain != null) {
@@ -113,11 +113,8 @@ public class RequestRoutingFilter extends OncePerRequestFilter {
 			log.info("[Mapping Phase Error] " + e.toString());
 		}
 
-		//2.contentPage
+		// Step 2: 公開コンテンツとして処理
 		try {
-			if (contentPath.startsWith("/")) {
-				contentPath = contentPath.substring(1);
-			}
 			HashMap<String, String> result = mapper.searchByUrl(contentPath, Constants.TABLE_CONTENT_PUBLIC);
 			if (result != null && !result.isEmpty() && result.get("id") != null && !Constants.EMPTY_STRING.equals(result.get("id"))) {
 				String id = result.get("id");
@@ -126,10 +123,13 @@ public class RequestRoutingFilter extends OncePerRequestFilter {
 				String title = Constants.EMPTY_STRING;
 				String contentResult = Constants.EMPTY_STRING;
 				String originalFilePath = Constants.EMPTY_STRING;
-				if (type == null || type.equals(Constants.CONTENT_TYPE_CONTENT)) {
-					originalFilePath = rootpath + "/original.html";
-					title = result.get("title");
-					head = content.getTemplateHead(id, Constants.TABLE_CONTENT_PUBLIC) + content.getHead(id, Constants.TABLE_CONTENT_PUBLIC);
+				if (type == null || Constants.CONTENT_TYPE_CONTENT.equals(type)) {
+					originalFilePath = rootPath + "/original.html";
+					title = result.get("title") != null ? result.get("title") : Constants.EMPTY_STRING;
+					String templateHead = content.getTemplateHead(id, Constants.TABLE_CONTENT_PUBLIC);
+					String headPart = content.getHead(id, Constants.TABLE_CONTENT_PUBLIC);
+					head = (templateHead != null ? templateHead : Constants.EMPTY_STRING)
+							+ (headPart != null ? headPart : Constants.EMPTY_STRING);
 					contentResult = content.displayContent(id);
 					response.setContentType("text/html; charset=UTF-8");
 				} else if (type.equals(Constants.CONTENT_TYPE_STYLESHEET)) {
@@ -230,25 +230,21 @@ public class RequestRoutingFilter extends OncePerRequestFilter {
 				
 				String original = CommonProc.readFile(originalFilePath);
 				if (original == null || original.isEmpty()) {
-					log.error("[ContentPage Phase Error] Failed to read template file: " + originalFilePath);
-					response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-					response.setContentType("text/plain; charset=UTF-8");
-					response.getWriter().write("Template file not found or empty: " + originalFilePath);
-					response.getWriter().close();
-					return;
+					log.warn("[ContentPage] Template file not found or empty, using fallback HTML: " + originalFilePath);
+					// サーバーに original.html が無い場合のフォールバック（JAR 同梱ディレクトリ未配置時など）
+					original = "<!DOCTYPE html><html lang=\"ja\"><head><meta charset=\"UTF-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\"><title>"
+							+ Constants.TEMPLATE_TITLE_PLACEHOLDER + "</title>" + Constants.TEMPLATE_HEAD_PLACEHOLDER + "</head><body>"
+							+ Constants.TEMPLATE_CONTENT_PLACEHOLDER + "</body></html>";
 				}
 				if (contentResult == null) {
 					contentResult = Constants.EMPTY_STRING;
 				}
-				if (title == null) {
-					title = Constants.EMPTY_STRING;
-				}
-				if (head == null) {
-					head = Constants.EMPTY_STRING;
-				}
-				original = original.replaceAll(Constants.TEMPLATE_TITLE_PLACEHOLDER, title);
-				original = original.replaceAll(Constants.TEMPLATE_HEAD_PLACEHOLDER, head);
-				original = original.replaceAll(Constants.TEMPLATE_CONTENT_PLACEHOLDER, contentResult);
+				String safeTitle = (title != null ? title : Constants.EMPTY_STRING)
+						.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;").replace("\"", "&quot;");
+				// replace() を使用（replaceAll だと本文の $ が正規表現の後方参照と解釈され "No group 8" 等で500になる）
+				original = original.replace(Constants.TEMPLATE_TITLE_PLACEHOLDER, safeTitle);
+				original = original.replace(Constants.TEMPLATE_HEAD_PLACEHOLDER, head != null ? head : Constants.EMPTY_STRING);
+				original = original.replace(Constants.TEMPLATE_CONTENT_PLACEHOLDER, contentResult);
 				response.setCharacterEncoding("UTF-8");
 				response.getWriter().write(original);
 				response.getWriter().close();
@@ -268,8 +264,17 @@ public class RequestRoutingFilter extends OncePerRequestFilter {
 				log.error("Failed to write error response", ioException);
 			}
 		}
-		// 3.template/error/404.html
+		// Step 3: 404等のデフォルト処理
 		filterChain.doFilter(request, response);
-		return;
+	}
+
+	/**
+	 * コンテンツパスを正規化する（先頭のスラッシュを除去）
+	 */
+	private String normalizeContentPath(String path) {
+		if (path == null) {
+			return "";
+		}
+		return path.startsWith("/") ? path.substring(1) : path;
 	}
 }

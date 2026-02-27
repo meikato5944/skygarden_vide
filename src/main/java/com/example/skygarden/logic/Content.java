@@ -544,8 +544,11 @@ public class Content {
 	 * @return スタイルシート文字列
 	 */
 	public String getStylesheet(String id, String table) {
-		String output = mapper.searchContentByAttribute(id, "content", table).replaceAll("\r\n", "");
-		return output;
+		String raw = mapper.searchContentByAttribute(id, "content", table);
+		if (raw == null) {
+			return Constants.EMPTY_STRING;
+		}
+		return raw.replaceAll("\r\n", Constants.EMPTY_STRING);
 	}
 
 	/**
@@ -556,7 +559,8 @@ public class Content {
 	 * @return ヘッダー部分のHTML
 	 */
 	public String getHead(String id, String table) {
-		return mapper.searchContentByAttribute(id, "head", table);
+		String value = mapper.searchContentByAttribute(id, "head", table);
+		return value != null ? value : Constants.EMPTY_STRING;
 	}
 
 	/**
@@ -574,7 +578,8 @@ public class Content {
 		}
 		String tempId = results.get("template");
 		if (tempId != null && !tempId.equals(Constants.EMPTY_STRING)) {
-			return mapper.searchContentByAttribute(tempId, "head", table);
+			String value = mapper.searchContentByAttribute(tempId, "head", table);
+			return value != null ? value : Constants.EMPTY_STRING;
 		} else {
 			return Constants.EMPTY_STRING;
 		}
@@ -815,14 +820,14 @@ public class Content {
 	 */
 	public boolean doDelete(String id, String mode, HttpServletResponse response, HttpSession session) {
 		try {
-			mapper.delete("content", id);
-			String public_id = mapper.searchContentByAttribute(id, "id", "content_public");
-					if (public_id != null && !public_id.equals(Constants.EMPTY_STRING)) {
-			mapper.delete(Constants.TABLE_CONTENT_PUBLIC, id);
-		}
-		session.setAttribute(Constants.SESSION_REGISTER_MESSAGE, Constants.MESSAGE_DELETE_SUCCESS);
-	} catch (Exception e) {
-		session.setAttribute(Constants.SESSION_REGISTER_MESSAGE, Constants.MESSAGE_DELETE_FAILED);
+			mapper.delete(Constants.TABLE_CONTENT, id);
+			String publicId = mapper.searchContentByAttribute(id, "id", Constants.TABLE_CONTENT_PUBLIC);
+			if (publicId != null && !publicId.equals(Constants.EMPTY_STRING)) {
+				mapper.delete(Constants.TABLE_CONTENT_PUBLIC, id);
+			}
+			session.setAttribute(Constants.SESSION_REGISTER_MESSAGE, Constants.MESSAGE_DELETE_SUCCESS);
+		} catch (Exception e) {
+			session.setAttribute(Constants.SESSION_REGISTER_MESSAGE, Constants.MESSAGE_DELETE_FAILED);
 		}
 		try {
 			String redirectUrl = getRedirectUrl(mode);
@@ -850,9 +855,9 @@ public class Content {
 			for (String id : ids) {
 				if (id != null && !id.equals(Constants.EMPTY_STRING)) {
 					try {
-						mapper.delete("content", id);
-						String public_id = mapper.searchContentByAttribute(id, "id", "content_public");
-						if (public_id != null && !public_id.equals(Constants.EMPTY_STRING)) {
+						mapper.delete(Constants.TABLE_CONTENT, id);
+						String publicId = mapper.searchContentByAttribute(id, "id", Constants.TABLE_CONTENT_PUBLIC);
+						if (publicId != null && !publicId.equals(Constants.EMPTY_STRING)) {
 							mapper.delete(Constants.TABLE_CONTENT_PUBLIC, id);
 						}
 						successCount++;
