@@ -173,7 +173,10 @@
                             
                             <!-- url -->
                             <div class="mb-3">
-                                <label for="url" class="sky-form-label fw-bold ms-1">url</label>
+                                <div class="d-flex justify-content-between align-items-center mb-1">
+                                    <label for="url" class="sky-form-label fw-bold ms-1">url</label>
+                                    <button type="button" class="btn btn-sm btn-outline-warning" id="openPublicUrlBtn" title="入力中のURLを公開ページで開く">公開URLで開く</button>
+                                </div>
                                 <input type="text" class="form-control sky-input" id="url" name="url" th:value="${url}" placeholder="Enter url" required />
                                 <div class="ms-2 invalid-feedback">urlの入力に誤りがあります</div>
                             </div>
@@ -1080,6 +1083,21 @@
                     htmlFileInput.click();
                 });
                 htmlFileInput.addEventListener('change', onHtmlFileSelected);
+            }
+            
+            // 公開URLで開く
+            var openPublicUrlBtn = document.getElementById('openPublicUrlBtn');
+            if (openPublicUrlBtn) {
+                openPublicUrlBtn.addEventListener('click', function() {
+                    var urlInput = document.getElementById('url');
+                    var path = (urlInput && urlInput.value) ? urlInput.value.trim().replace(/^\/+/, '') : '';
+                    if (!path) {
+                        alert('URLを入力してください。');
+                        return;
+                    }
+                    var publicUrl = window.location.origin + '/' + path;
+                    window.open(publicUrl, '_blank', 'noopener,noreferrer');
+                });
             }
             
             // 画像選択モーダル
