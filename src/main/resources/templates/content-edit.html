@@ -995,8 +995,26 @@
             }
         }
         
+        function buildUrlFromHtmlFileName(fileName) {
+            if (!fileName) return '';
+            var name = String(fileName).trim();
+            // Windowsのパスっぽい入力も念のため考慮（ブラウザは通常ファイル名のみ）
+            name = name.split(/[/\\\\]/).pop();
+            // スペース類はURLにしづらいのでハイフンに寄せる（日本語はそのまま許容）
+            name = name.replace(/\s+/g, '-');
+            // URLとして不適切になりやすい文字だけ除去
+            name = name.replace(/[<>:"{}|\\^`\[\]?#%]/g, '');
+            // 先頭のドットは避ける
+            name = name.replace(/^\.+/, '');
+            if (!name) return '';
+            if (!/\.html?$/i.test(name)) {
+                name = name + '.html';
+            }
+            return name;
+        }
+        
         // HTMLファイルを読み込み、head・body・title に振り分ける
-        function parseHtmlFileAndFillForm(htmlText) {
+        function parseHtmlFileAndFillForm(htmlText, fileName) {
             var parser = new DOMParser();
             var doc = parser.parseFromString(htmlText, 'text/html');
             var headEl = doc.querySelector('head');
@@ -1010,6 +1028,7 @@
             var titleInput = document.getElementById('title');
             var headTextarea = document.getElementById('head');
             var contentTextarea = document.getElementById('content');
+            var urlInput = document.getElementById('url');
             
             if (titleInput && titleContent) {
                 titleInput.value = titleContent;
@@ -1019,6 +1038,12 @@
             }
             if (contentTextarea) {
                 contentTextarea.value = bodyContent;
+            }
+            if (urlInput && (!urlInput.value || urlInput.value.trim() === '')) {
+                var nextUrl = buildUrlFromHtmlFileName(fileName);
+                if (nextUrl) {
+                    urlInput.value = nextUrl;
+                }
             }
             
             // プレビュー表示中ならコード表示に戻す
@@ -1036,7 +1061,7 @@
             reader.onload = function(e) {
                 var text = e.target && e.target.result;
                 if (typeof text === 'string') {
-                    parseHtmlFileAndFillForm(text);
+                    parseHtmlFileAndFillForm(text, file.name);
                 }
             };
             reader.onerror = function() {
