@@ -158,12 +158,13 @@ public class FileController {
 			boolean isFirstPublish = false;
 			if (id.isEmpty()) {
 				// 新規作成
-				int newId = mapper.create(
+				mapper.create(
 					nowTime, nowTime, name, name,
 					url, title, originalFileName, savedFileName,
 					Constants.CONTENT_TYPE_FILE, "", "",
 					schedule_published, schedule_unpublished, published
 				);
+				int newId = mapper.getLastInsertId();
 				
 				if (published.equals(Constants.FLAG_YES)) {
 					mapper.createPublic(

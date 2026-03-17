@@ -47,9 +47,6 @@ public class Setting {
 	/** コンテンツ管理用のMyBatis Mapper（設定操作にも使用） */
 	@Autowired
 	private ContentMapper mapper;
-	
-	/** ルートパス（ファイル操作時に使用、現在は未使用） */
-	String ROOTPATH;
 
 	/**
 	 * 設定情報を更新する

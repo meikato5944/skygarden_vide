@@ -38,5 +38,5 @@ public class ElementItemBean implements Serializable {
 	/** シリアルバージョンUID */
 	private static final long serialVersionUID = 1L;
 	/** 構成要素のリスト（各要素はid、title、codeなどの情報を含む） */
-	List<HashMap<String, String>> results = new ArrayList<HashMap<String, String>>();
+	private List<HashMap<String, String>> results = new ArrayList<>();
 }

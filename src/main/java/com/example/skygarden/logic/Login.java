@@ -12,6 +12,7 @@ import com.example.skygarden.mapper.ContentMapper;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * ログイン処理のビジネスロジッククラス
@@ -42,9 +43,10 @@ import jakarta.servlet.http.HttpSession;
  * 
  * @see ContentMapper データベース操作
  */
+@Slf4j
 @Service
 public class Login {
-	
+
 	/** コンテンツ管理用のMyBatis Mapper（ユーザー情報取得にも使用） */
 	@Autowired
 	private ContentMapper mapper;
@@ -62,27 +64,31 @@ public class Login {
 	public void doLogin(String name, String password, HttpServletRequest request, HttpServletResponse response, HttpSession session) {
 		HashMap<String, String> result = mapper.getUser(name);
 		if (result == null || result.isEmpty()) {
-			try {
-				response.sendRedirect(Constants.PATH_LOGIN + "?loginError=" + Constants.ERROR_USER_NOT_FOUND);
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
+			redirectToLoginError(response, Constants.ERROR_USER_NOT_FOUND);
 			return;
 		}
 		String userPassword = result.get("password");
 		String loginName = result.get("name");
 		String admin = result.get("admin");
+		if (java.util.Objects.equals(password, userPassword)) {
+			session.setAttribute(Constants.SESSION_LOGIN_NAME, loginName);
+			session.setAttribute(Constants.SESSION_NAME, name);
+			session.setAttribute(Constants.SESSION_ADMIN, admin);
+			redirectTo(response, Constants.PATH_ROOT);
+		} else {
+			redirectToLoginError(response, Constants.ERROR_PASSWORD_INCORRECT);
+		}
+	}
+
+	private void redirectToLoginError(HttpServletResponse response, String error) {
+		redirectTo(response, Constants.PATH_LOGIN + "?loginError=" + error);
+	}
+
+	private void redirectTo(HttpServletResponse response, String location) {
 		try {
-			if (userPassword != null && password.equals(userPassword)) {
-				response.sendRedirect(Constants.PATH_ROOT);
-				session.setAttribute(Constants.SESSION_LOGIN_NAME, loginName);
-				session.setAttribute(Constants.SESSION_NAME, name);
-				session.setAttribute(Constants.SESSION_ADMIN, admin);
-			} else {
-				response.sendRedirect(Constants.PATH_LOGIN + "?loginError=" + Constants.ERROR_PASSWORD_INCORRECT);
-			}
+			response.sendRedirect(location);
 		} catch (IOException e) {
-			e.printStackTrace();
+			log.warn("リダイレクトに失敗しました: {}", e.getMessage());
 		}
 	}
 }

@@ -262,7 +262,9 @@ public class Content {
 			}
 			String nowTime = CommonProc.createNow();
 			// データベースへの登録を実行
-			id = mapper.create(nowTime, nowTime, name, name, url, title, head, content, type, elementcolor, template, schedule_published, schedule_unpublished, published);
+			mapper.create(nowTime, nowTime, name, name, url, title, head, content, type, elementcolor, template, schedule_published, schedule_unpublished, published);
+			// create() の戻り値は更新件数になるため、採番IDは明示的に取得する
+			id = mapper.getLastInsertId();
 			
 			// IDが正しく取得できているか確認
 			if (id <= 0) {
@@ -945,7 +947,9 @@ public class Content {
 							String schedule_unpublished = Constants.EMPTY_STRING;
 							
 							// 新しいコンテンツを作成（typeはコピー元のtypeを保持）
-							int newId = mapper.create(nowTime, nowTime, name, name, url, title, head, content, type, elementcolor, template, schedule_published, schedule_unpublished, published);
+							mapper.create(nowTime, nowTime, name, name, url, title, head, content, type, elementcolor, template, schedule_published, schedule_unpublished, published);
+							// 返り値は更新件数のため、必要ならLAST_INSERT_ID()で取得する
+							mapper.getLastInsertId();
 							successCount++;
 						}
 					} catch (Exception e) {

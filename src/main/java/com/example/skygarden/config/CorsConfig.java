@@ -33,7 +33,7 @@ public class CorsConfig {
      * @return WebMvcConfigurerの実装
      */
     @Bean
-    WebMvcConfigurer corsConfigurer() {
+    public WebMvcConfigurer corsConfigurer() {
         return new WebMvcConfigurer() {
             /**
              * CORSマッピングを追加する

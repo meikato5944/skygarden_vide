@@ -35,5 +35,5 @@ public class SettingColorElementsBean implements Serializable {
 	/** シリアルバージョンUID */
 	private static final long serialVersionUID = 1L;
 	/** 色要素のリスト（各要素はname、codeなどの情報を含む） */
-	List<HashMap<String, String>> colorElements;
+	private List<HashMap<String, String>> colorElements;
 }

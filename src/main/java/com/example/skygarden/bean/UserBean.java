@@ -33,11 +33,11 @@ public class UserBean implements Serializable {
 	/** シリアルバージョンUID */
 	private static final long serialVersionUID = 1L;
 	/** ユーザー名 */
-	String name = "";
+	private String name = "";
 	/** パスワード */
-	String password = "";
+	private String password = "";
 	/** メールアドレス */
-	String email = "";
+	private String email = "";
 	/** 管理者フラグ（"1"が管理者、"0"が一般ユーザー） */
-	String admin = "";
+	private String admin = "";
 }

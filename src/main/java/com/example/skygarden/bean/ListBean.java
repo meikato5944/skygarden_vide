@@ -34,15 +34,15 @@ public class ListBean implements Serializable {
 	/** シリアルバージョンUID */
 	private static final long serialVersionUID = 1L;
 	/** ログインユーザー名 */
-	String loginName = "";
+	private String loginName = "";
 	/** 画面名（コンテンツ、テンプレート、構成要素など） */
-	String screenName = "";
+	private String screenName = "";
 	/** 登録・更新・削除時のメッセージ */
-	String registerMessage = "";
+	private String registerMessage = "";
 	/** ソート選択用のHTMLオプション */
-	String sortOutput = "";
+	private String sortOutput = "";
 	/** ページネーション用のHTML */
-	String pagerOutput = "";
+	private String pagerOutput = "";
 	/** コンテンツ一覧の結果リスト */
-	List<HashMap<String, String>> results = new ArrayList<HashMap<String, String>>();	
+	private List<HashMap<String, String>> results = new ArrayList<>();
 }

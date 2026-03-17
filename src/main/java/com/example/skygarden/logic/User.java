@@ -13,6 +13,7 @@ import com.example.skygarden.mapper.ContentMapper;
 import com.example.skygarden.util.PaginationUtil;
 
 import jakarta.servlet.http.HttpServletRequest;
+import lombok.extern.slf4j.Slf4j;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 
@@ -43,9 +44,10 @@ import jakarta.servlet.http.HttpSession;
  * @see ContentMapper データベース操作
  * @see AppProperties アプリケーション設定（ページサイズ等）
  */
+@Slf4j
 @Service
 public class User {
-	
+
 	/** コンテンツ管理用のMyBatis Mapper（ユーザー操作にも使用） */
 	@Autowired
 	private ContentMapper mapper;
@@ -74,14 +76,10 @@ public class User {
 			mapper.createUser(name, password, email, admin);
 			session.setAttribute(Constants.SESSION_REGISTER_MESSAGE, Constants.MESSAGE_REGISTER_SUCCESS);
 		} catch (Exception e) {
-			e.printStackTrace();
+			log.warn("ユーザー作成に失敗しました: {}", e.getMessage());
 			session.setAttribute(Constants.SESSION_REGISTER_MESSAGE, Constants.MESSAGE_REGISTER_FAILED);
 		}
-		try {
-			response.sendRedirect(Constants.PATH_USER_LIST);
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+		redirectToUserList(response);
 		return true;
 	}
 
@@ -106,14 +104,10 @@ public class User {
 			mapper.updateUser(id, name, password, email, admin);
 			session.setAttribute(Constants.SESSION_REGISTER_MESSAGE, Constants.MESSAGE_REGISTER_SUCCESS);
 		} catch (Exception e) {
-			e.printStackTrace();
+			log.warn("ユーザー更新に失敗しました: {}", e.getMessage());
 			session.setAttribute(Constants.SESSION_REGISTER_MESSAGE, Constants.MESSAGE_REGISTER_FAILED);
 		}
-		try {
-			response.sendRedirect(Constants.PATH_USER_LIST);
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+		redirectToUserList(response);
 		return true;
 	}
 
@@ -149,26 +143,36 @@ public class User {
 	 * @return ページネーション用のHTML文字列
 	 */
 	public String getPager(int page, String pageUrl, String sort) {
-		StringBuffer output = new StringBuffer();
+		StringBuilder output = new StringBuilder();
 		int contentSize = mapper.getContentSize(Constants.TABLE_USER, Constants.EMPTY_STRING);
 		int pageSize = appProperties.getPagination().getPageSize();
 		int totalPages = PaginationUtil.calculateTotalPages(contentSize, pageSize);
-		//Prev
 		if (1 < page && totalPages != 0) {
-			output.append("<li class=\"page-item me-4\"><a class=\"page-link sky-pagination-link\" href=\"" + pageUrl + "?page=" + (page - 1) + "&sort=" + sort + "\" aria-label=\"Previous\"><span aria-hidden=\"true\">&laquo;</span></a></li>");
+			output.append("<li class=\"page-item me-4\"><a class=\"page-link sky-pagination-link\" href=\"")
+				.append(pageUrl).append("?page=").append(page - 1).append("&sort=").append(sort)
+				.append("\" aria-label=\"Previous\"><span aria-hidden=\"true\">&laquo;</span></a></li>");
 		}
-		//PageNum
 		for (int i = 1; i <= totalPages; i++) {
 			if (i == page) {
-				output.append("<li class=\"page-item mx-2\">" + i + "</span></li>");
+				output.append("<li class=\"page-item mx-2\">").append(i).append("</li>");
 			} else {
-				output.append("<li class=\"page-item mx-2\"><a class=\"page-link sky-pagination-link\" href=\"" + pageUrl + "?page=" + i + "&sort=" + sort + "\">" + i + "</a></li>");
+				output.append("<li class=\"page-item mx-2\"><a class=\"page-link sky-pagination-link\" href=\"")
+					.append(pageUrl).append("?page=").append(i).append("&sort=").append(sort).append("\">").append(i).append("</a></li>");
 			}
 		}
-		//Next
 		if (page < totalPages) {
-			output.append("<li class=\"page-item ms-4\"><a class=\"page-link sky-pagination-link\" href=\"" + pageUrl + "?page=" + (page + 1) + "&sort=" + sort + "\" aria-label=\"Next\"><span aria-hidden=\"true\">&raquo;</span></a></li>");
+			output.append("<li class=\"page-item ms-4\"><a class=\"page-link sky-pagination-link\" href=\"")
+				.append(pageUrl).append("?page=").append(page + 1).append("&sort=").append(sort)
+				.append("\" aria-label=\"Next\"><span aria-hidden=\"true\">&raquo;</span></a></li>");
 		}
 		return output.toString();
+	}
+
+	private void redirectToUserList(HttpServletResponse response) {
+		try {
+			response.sendRedirect(Constants.PATH_USER_LIST);
+		} catch (IOException e) {
+			log.warn("リダイレクトに失敗しました: {}", e.getMessage());
+		}
 	}
 }

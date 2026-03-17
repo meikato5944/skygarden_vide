@@ -11,7 +11,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.web.multipart.MaxUploadSizeExceededException;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.example.skygarden.constants.Constants;
 
@@ -30,9 +29,6 @@ class GlobalExceptionHandlerTest {
     @Mock
     private HttpSession session;
 
-    @Mock
-    private RedirectAttributes redirectAttributes;
-
     @InjectMocks
     private GlobalExceptionHandler handler;
 
@@ -46,7 +42,7 @@ class GlobalExceptionHandlerTest {
         MaxUploadSizeExceededException exc = new MaxUploadSizeExceededException(1000000);
         when(request.getHeader("Referer")).thenReturn("http://localhost:8080/?mode=image");
 
-        String result = handler.handleMaxSizeException(exc, request, session, redirectAttributes);
+        String result = handler.handleMaxSizeException(exc, request, session);
 
         assertEquals("redirect:/?mode=image", result);
         verify(session).setAttribute(eq(Constants.SESSION_REGISTER_MESSAGE), anyString());
@@ -57,7 +53,7 @@ class GlobalExceptionHandlerTest {
         MaxUploadSizeExceededException exc = new MaxUploadSizeExceededException(1000000);
         when(request.getHeader("Referer")).thenReturn("http://localhost:8080/?mode=file");
 
-        String result = handler.handleMaxSizeException(exc, request, session, redirectAttributes);
+        String result = handler.handleMaxSizeException(exc, request, session);
 
         assertEquals("redirect:/?mode=file", result);
         verify(session).setAttribute(eq(Constants.SESSION_REGISTER_MESSAGE), anyString());
@@ -68,7 +64,7 @@ class GlobalExceptionHandlerTest {
         MaxUploadSizeExceededException exc = new MaxUploadSizeExceededException(1000000);
         when(request.getHeader("Referer")).thenReturn("http://localhost:8080/?mode=movie");
 
-        String result = handler.handleMaxSizeException(exc, request, session, redirectAttributes);
+        String result = handler.handleMaxSizeException(exc, request, session);
 
         assertEquals("redirect:/?mode=movie", result);
         verify(session).setAttribute(eq(Constants.SESSION_REGISTER_MESSAGE), anyString());
@@ -79,7 +75,7 @@ class GlobalExceptionHandlerTest {
         MaxUploadSizeExceededException exc = new MaxUploadSizeExceededException(1000000);
         when(request.getHeader("Referer")).thenReturn(null);
 
-        String result = handler.handleMaxSizeException(exc, request, session, redirectAttributes);
+        String result = handler.handleMaxSizeException(exc, request, session);
 
         assertEquals("redirect:/?mode=image", result);
         verify(session).setAttribute(eq(Constants.SESSION_REGISTER_MESSAGE), anyString());
@@ -90,7 +86,7 @@ class GlobalExceptionHandlerTest {
         MaxUploadSizeExceededException exc = new MaxUploadSizeExceededException(1000000);
         when(request.getHeader("Referer")).thenReturn("http://localhost:8080/other");
 
-        String result = handler.handleMaxSizeException(exc, request, session, redirectAttributes);
+        String result = handler.handleMaxSizeException(exc, request, session);
 
         assertEquals("redirect:/?mode=image", result);
         verify(session).setAttribute(eq(Constants.SESSION_REGISTER_MESSAGE), anyString());
@@ -101,7 +97,7 @@ class GlobalExceptionHandlerTest {
         MaxUploadSizeExceededException exc = new MaxUploadSizeExceededException(1000000);
         when(request.getHeader("Referer")).thenReturn("http://localhost:8080/?mode=image");
 
-        handler.handleMaxSizeException(exc, request, session, redirectAttributes);
+        handler.handleMaxSizeException(exc, request, session);
 
         verify(session).setAttribute(eq(Constants.SESSION_REGISTER_MESSAGE), argThat(message -> 
             message != null && message.toString().contains("ファイルサイズが上限")

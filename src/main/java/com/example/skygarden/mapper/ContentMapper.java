@@ -67,6 +67,12 @@ public interface ContentMapper {
 			@Param("schedule_published") String schedulePublished,
 			@Param("schedule_unpublished") String scheduleUnpublished,
 			@Param("publishflg_keep") String publishflgKeep);
+
+	/**
+	 * 直前のINSERTで採番されたIDを取得する（MySQLのLAST_INSERT_ID）
+	 * 同一コネクション内でのみ有効なため、INSERT直後に呼び出すこと。
+	 */
+	int getLastInsertId();
 	
 	/**
 	 * 公開用コンテンツテーブルに新規コンテンツを作成する

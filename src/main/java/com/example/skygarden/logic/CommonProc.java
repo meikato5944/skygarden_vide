@@ -55,14 +55,11 @@ public class CommonProc {
 		StringBuilder result = new StringBuilder();
 		File f = new File(filepath);
 		if (f.exists()) {
-			BufferedReader input = null;
-			try {
-				input = new BufferedReader(new FileReader(filepath));
+			try (BufferedReader input = new BufferedReader(new FileReader(filepath))) {
 				String line;
 				while ((line = input.readLine()) != null) {
 					result.append(line).append("\r\n");
 				}
-				input.close();
 			} catch (Exception e) {
 				log.info(e.toString());
 			}

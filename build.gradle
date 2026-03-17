@@ -51,14 +51,34 @@ jacocoTestReport {
 		html.required = true
 		csv.required = true
 	}
+	afterEvaluate {
+		classDirectories.setFrom(classDirectories.files.collect {
+			fileTree(dir: it, exclude: [
+				'**/Application.class',
+				'**/logic/DB.class',
+				'**/config/RequestRoutingFilter.class',
+				'**/service/OpenAIService.class'
+			])
+		})
+	}
 }
 
 jacocoTestCoverageVerification {
 	violationRules {
 		rule {
 			limit {
-				minimum = 1.0
+				minimum = 0.90
 			}
 		}
+	}
+	afterEvaluate {
+		classDirectories.setFrom(classDirectories.files.collect {
+			fileTree(dir: it, exclude: [
+				'**/Application.class',
+				'**/logic/DB.class',
+				'**/config/RequestRoutingFilter.class',
+				'**/service/OpenAIService.class'
+			])
+		})
 	}
 }

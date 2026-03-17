@@ -122,8 +122,11 @@ public class DirectoryNodeBean {
      * @return 見つかったノード、見つからない場合はnull
      */
     public DirectoryNodeBean findChildDirectory(String dirName) {
+        if (children == null) {
+            return null;
+        }
         for (DirectoryNodeBean child : children) {
-            if (child.isDirectory() && child.getName().equals(dirName)) {
+            if (child.isDirectory() && dirName.equals(child.getName())) {
                 return child;
             }
         }

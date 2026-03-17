@@ -66,6 +66,7 @@ class ContentTest {
     @BeforeEach
     void setUp() {
         // appPropertiesとpaginationのモックは各テストで必要に応じて設定
+        when(mapper.getLastInsertId()).thenReturn(1);
         contentData = new HashMap<>();
         contentData.put("id", "1");
         contentData.put("title", "Test Title");
@@ -324,6 +325,15 @@ class ContentTest {
 
         assertNotNull(result);
         assertFalse(result.contains("\r\n"));
+    }
+
+    @Test
+    void testGetStylesheet_NullContent() {
+        when(mapper.searchContentByAttribute("1", "content", Constants.TABLE_CONTENT)).thenReturn(null);
+
+        String result = content.getStylesheet("1", Constants.TABLE_CONTENT);
+
+        assertEquals(Constants.EMPTY_STRING, result);
     }
 
     @Test
@@ -1317,8 +1327,7 @@ class ContentTest {
 
     @Test
     void testDoDelete_PublicContentWithEmptyId() throws IOException {
-        when(mapper.searchContentByAttribute("1", "id", "content_public")).thenReturn("");
-        doNothing().when(mapper).delete(anyString(), anyString());
+        when(mapper.searchContentByAttribute("1", "id", Constants.TABLE_CONTENT_PUBLIC)).thenReturn("");
         doNothing().when(response).sendRedirect(anyString());
 
         boolean result = content.doDelete("1", "content", response, session);
@@ -1347,6 +1356,130 @@ class ContentTest {
 
         assertTrue(result);
         verify(mapper).delete(Constants.TABLE_CONTENT, "1");
+    }
+
+    @Test
+    void testDoBatchDelete_Success() throws IOException {
+        when(session.getAttribute("name")).thenReturn("user1");
+        when(mapper.searchContentByAttribute("1", "id", Constants.TABLE_CONTENT_PUBLIC)).thenReturn("1");
+        when(mapper.searchContentByAttribute("2", "id", Constants.TABLE_CONTENT_PUBLIC)).thenReturn(null);
+        doNothing().when(response).sendRedirect(anyString());
+
+        boolean result = content.doBatchDelete(new String[]{"1", "2"}, "", response, session);
+
+        assertTrue(result);
+        verify(mapper).delete(Constants.TABLE_CONTENT, "1");
+        verify(mapper).delete(Constants.TABLE_CONTENT_PUBLIC, "1");
+        verify(mapper).delete(Constants.TABLE_CONTENT, "2");
+        verify(mapper, never()).delete(Constants.TABLE_CONTENT_PUBLIC, "2");
+        verify(session).setAttribute(Constants.SESSION_REGISTER_MESSAGE, "2件のコンテンツを削除しました。");
+    }
+
+    @Test
+    void testDoBatchDelete_PartialFailure() throws IOException {
+        when(mapper.searchContentByAttribute("1", "id", Constants.TABLE_CONTENT_PUBLIC)).thenReturn(null);
+        doThrow(new RuntimeException("DB Error")).when(mapper).delete(Constants.TABLE_CONTENT, "1");
+        when(mapper.searchContentByAttribute("2", "id", Constants.TABLE_CONTENT_PUBLIC)).thenReturn(null);
+        doNothing().when(response).sendRedirect(anyString());
+
+        boolean result = content.doBatchDelete(new String[]{"1", "2"}, "template", response, session);
+
+        assertTrue(result);
+        verify(session).setAttribute(Constants.SESSION_REGISTER_MESSAGE, "1件の削除に成功しました。1件の削除に失敗しました。");
+    }
+
+    @Test
+    void testDoBatchDelete_AllFail() throws IOException {
+        doThrow(new RuntimeException("DB Error")).when(mapper).delete(Constants.TABLE_CONTENT, "1");
+        doNothing().when(response).sendRedirect(anyString());
+
+        boolean result = content.doBatchDelete(new String[]{"1"}, "", response, session);
+
+        assertTrue(result);
+        verify(session).setAttribute(Constants.SESSION_REGISTER_MESSAGE, Constants.MESSAGE_DELETE_FAILED);
+    }
+
+    @Test
+    void testDoBatchDelete_SkipsNullAndEmptyIds() throws IOException {
+        when(mapper.searchContentByAttribute("2", "id", Constants.TABLE_CONTENT_PUBLIC)).thenReturn(null);
+        doNothing().when(response).sendRedirect(anyString());
+
+        boolean result = content.doBatchDelete(new String[]{"", null, "2"}, "", response, session);
+
+        assertTrue(result);
+        verify(mapper, times(1)).delete(anyString(), anyString());
+        verify(mapper).delete(Constants.TABLE_CONTENT, "2");
+    }
+
+    @Test
+    void testDoBatchCopy_Success() throws IOException {
+        when(session.getAttribute("name")).thenReturn("user1");
+        HashMap<String, String> original = new HashMap<>();
+        original.put("title", "Title");
+        original.put("head", "Head");
+        original.put("content", "Content");
+        original.put("type", "template");
+        original.put("elementcolor", "");
+        original.put("template", "");
+        when(mapper.search("1", Constants.TABLE_CONTENT)).thenReturn(original);
+        when(mapper.create(anyString(), anyString(), anyString(), anyString(), anyString(), anyString(),
+            anyString(), anyString(), anyString(), anyString(), anyString(), anyString(), anyString(), anyString()))
+            .thenReturn(10);
+        doNothing().when(response).sendRedirect(anyString());
+
+        boolean result = content.doBatchCopy(new String[]{"1"}, new String[]{"new/url"}, "template", response, session);
+
+        assertTrue(result);
+        verify(mapper).create(anyString(), anyString(), anyString(), anyString(), eq("new/url"), eq("Title"),
+            anyString(), anyString(), anyString(), anyString(), anyString(), anyString(), anyString(), eq(Constants.FLAG_NO));
+        verify(session).setAttribute(Constants.SESSION_REGISTER_MESSAGE, "1件のコンテンツをコピーしました。");
+    }
+
+    @Test
+    void testDoBatchCopy_WithEmptyUrl() throws IOException {
+        when(session.getAttribute("name")).thenReturn("user1");
+        HashMap<String, String> original = new HashMap<>(contentData);
+        when(mapper.search("1", Constants.TABLE_CONTENT)).thenReturn(original);
+        when(mapper.create(anyString(), anyString(), anyString(), anyString(), anyString(), anyString(),
+            anyString(), anyString(), anyString(), anyString(), anyString(), anyString(), anyString(), anyString()))
+            .thenReturn(10);
+        doNothing().when(response).sendRedirect(anyString());
+
+        boolean result = content.doBatchCopy(new String[]{"1"}, new String[]{""}, "", response, session);
+
+        assertTrue(result);
+        verify(mapper).create(anyString(), anyString(), anyString(), anyString(), eq(""), anyString(),
+            anyString(), anyString(), anyString(), anyString(), anyString(), anyString(), anyString(), eq(Constants.FLAG_NO));
+    }
+
+    @Test
+    void testDoBatchCopy_PartialFailure() throws IOException {
+        when(session.getAttribute("name")).thenReturn("user1");
+        when(mapper.search("1", Constants.TABLE_CONTENT)).thenReturn(contentData);
+        HashMap<String, String> orig2 = new HashMap<>(contentData);
+        orig2.put("id", "2");
+        when(mapper.search("2", Constants.TABLE_CONTENT)).thenReturn(orig2);
+        when(mapper.create(anyString(), anyString(), anyString(), anyString(), anyString(), anyString(),
+            anyString(), anyString(), anyString(), anyString(), anyString(), anyString(), anyString(), anyString()))
+            .thenReturn(10).thenThrow(new RuntimeException("DB Error"));
+        doNothing().when(response).sendRedirect(anyString());
+
+        boolean result = content.doBatchCopy(new String[]{"1", "2"}, new String[]{"url1", "url2"}, "", response, session);
+
+        assertTrue(result);
+        verify(session).setAttribute(Constants.SESSION_REGISTER_MESSAGE, "1件のコピーに成功しました。1件のコピーに失敗しました。");
+    }
+
+    @Test
+    void testDoBatchCopy_AllFail() throws IOException {
+        when(session.getAttribute("name")).thenReturn("user1");
+        when(mapper.search("1", Constants.TABLE_CONTENT)).thenReturn(null);
+        doNothing().when(response).sendRedirect(anyString());
+
+        boolean result = content.doBatchCopy(new String[]{"1"}, new String[]{"url"}, "", response, session);
+
+        assertTrue(result);
+        verify(session).setAttribute(Constants.SESSION_REGISTER_MESSAGE, "コピーに失敗しました。");
     }
 
     @Test

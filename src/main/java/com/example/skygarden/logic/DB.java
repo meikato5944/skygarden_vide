@@ -32,6 +32,7 @@ import lombok.extern.slf4j.Slf4j;
  * @deprecated ContentMapper を使用してください
  * @see ContentMapper MyBatisによるデータベース操作
  */
+@Deprecated
 @Slf4j
 public class DB {
 	

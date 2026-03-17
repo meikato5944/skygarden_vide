@@ -113,6 +113,10 @@
 		SELECT MAX(id) as maxid from content
 	</select>
 
+	<select id="getLastInsertId" resultType="int">
+		SELECT LAST_INSERT_ID()
+	</select>
+
 	<select id="getContentSize" resultType="int">
 		<choose>
 			<when test="table == 'user'">

@@ -41,29 +41,29 @@ public class ContentBean implements Serializable {
 	/** シリアルバージョンUID */
 	private static final long serialVersionUID = 1L;
 	/** 画面名（コンテンツ、テンプレート、構成要素など） */
-	String screenName = "";
+	private String screenName = "";
 	/** 公開予定日時 */
-	String schedule_published = "";
+	private String schedule_published = "";
 	/** 非公開予定日時 */
-	String schedule_unpublished = "";
+	private String schedule_unpublished = "";
 	/** テンプレートID */
-	String template = "";
+	private String template = "";
 	/** タイトル */
-	String title = "";
+	private String title = "";
 	/** ヘッダー部分のHTML */
-	String head = "";
+	private String head = "";
 	/** コンテンツ本文 */
-	String content = "";
+	private String content = "";
 	/** URLパス */
-	String url = "";
+	private String url = "";
 	/** 構成要素の色コード */
-	String elementcolor = "";
+	private String elementcolor = "";
 	/** テンプレート選択用のHTMLオプション */
-	String templateOutput = "";
+	private String templateOutput = "";
 	/** 色選択用のHTMLオプション */
-	String colorOutput = "";
+	private String colorOutput = "";
 	/** 構成要素のリスト */
-	List<HashMap<String, String>> eleResults = new ArrayList<HashMap<String, String>>();
+	private List<HashMap<String, String>> eleResults = new ArrayList<>();
 	/** 公開フラグ（保持用） */
-	String publishflgKeep = "";
+	private String publishflgKeep = "";
 }

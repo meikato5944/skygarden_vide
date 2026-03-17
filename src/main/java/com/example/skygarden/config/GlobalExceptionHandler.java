@@ -4,7 +4,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.multipart.MaxUploadSizeExceededException;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.example.skygarden.constants.Constants;
 
@@ -55,26 +54,27 @@ public class GlobalExceptionHandler {
 	public String handleMaxSizeException(
 			MaxUploadSizeExceededException exc,
 			HttpServletRequest request,
-			HttpSession session,
-			RedirectAttributes redirectAttributes) {
-		
+			HttpSession session) {
 		log.warn("File upload size exceeded: {}", exc.getMessage());
-		
+
 		String errorMessage = "ファイルサイズが上限（" + maxFileSize + "）を超えています。より小さいファイルを選択してください。";
 		session.setAttribute(Constants.SESSION_REGISTER_MESSAGE, errorMessage);
-		
-		// リファラーからリダイレクト先を決定
-		String referer = request.getHeader("Referer");
+
+		return getRedirectUrlForMaxSize(request.getHeader("Referer"));
+	}
+
+	/**
+	 * リファラーからファイルサイズ超過時のリダイレクト先を決定する
+	 */
+	private String getRedirectUrlForMaxSize(String referer) {
 		if (referer != null) {
-			if (referer.contains("mode=image")) {
-				return "redirect:/?mode=image";
-			} else if (referer.contains("mode=file")) {
+			if (referer.contains("mode=file")) {
 				return "redirect:/?mode=file";
-			} else if (referer.contains("mode=movie")) {
+			}
+			if (referer.contains("mode=movie")) {
 				return "redirect:/?mode=movie";
 			}
 		}
-		
 		return "redirect:/?mode=image";
 	}
 }
